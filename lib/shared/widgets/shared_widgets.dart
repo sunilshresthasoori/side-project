@@ -197,13 +197,13 @@ class SectionHeader extends StatelessWidget {
 class TagBadge extends StatelessWidget {
   final String label;
   final Color color;
-  final Color textColor;
+  final Color? textColor;
 
   const TagBadge(
       {super.key,
       required this.label,
       required this.color,
-      required this.textColor});
+       this.textColor});
 
   @override
   Widget build(BuildContext context) {

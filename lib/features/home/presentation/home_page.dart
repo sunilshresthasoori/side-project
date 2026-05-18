@@ -33,6 +33,11 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
+    if (i == 4) {
+      Navigator.of(context).pushNamed(AppRoutes.profile);
+      return;
+    }
+
     setState(() => _navIndex = i);
   }
 
