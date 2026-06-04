@@ -3,22 +3,22 @@ import 'package:equatable/equatable.dart';
 class CommunityStory extends Equatable {
   final String id;
   final String title;
-  final String excerpt;
+  final String shortDescription;
   final String body;
-  final String authorName;
-  final String authorBio;
-  final String authorAvatarPath;
-  final int authorFollowers;
+  final String fullName;
+  final String bio;
+  final String avatar;
+  final int followerCount;
   final String imagePath;
   final List<String> galleryImagePaths;
   final String contentType;
   final String difficulty;
   final String trekName;
-  final String location;
-  final DateTime date;
+  final String destinationName;
+  final DateTime publishedAt;
   final int readTimeMinutes;
-  final int likes;
-  final int comments;
+  final int likeCount;
+  final int commentCount;
   final int shares;
   final bool isBookmarked;
   final bool isFeatured;
@@ -27,47 +27,81 @@ class CommunityStory extends Equatable {
   const CommunityStory({
     required this.id,
     required this.title,
-    required this.excerpt,
+    required this.shortDescription,
     required this.body,
-    required this.authorName,
-    required this.authorBio,
-    required this.authorAvatarPath,
-    required this.authorFollowers,
+    required this.fullName,
+    required this.bio,
+    required this.avatar,
+    required this.followerCount,
     required this.imagePath,
     required this.galleryImagePaths,
     required this.contentType,
     required this.difficulty,
     required this.trekName,
-    required this.location,
-    required this.date,
+    required this.destinationName,
+    required this.publishedAt,
     required this.readTimeMinutes,
-    required this.likes,
-    required this.comments,
+    required this.likeCount,
+    required this.commentCount,
     required this.shares,
     required this.isBookmarked,
     required this.isFeatured,
     required this.tags,
   });
 
+  factory CommunityStory.fromJson(Map<String, dynamic> json) {
+    final writer = json['writer'] as Map<String, dynamic>? ?? {};
+    final images = (json['images'] as List<dynamic>?) ?? [];
+    final destination = json['destination'] as Map<String, dynamic>? ?? {};
+
+    return CommunityStory(
+      id: json['id'].toString(),
+      title: json['title'] as String? ?? '',
+      shortDescription: json['shortDescription'] as String? ?? '',
+      body: '',
+      fullName: writer['fullName'] as String? ?? writer['username'] as String? ?? '',
+      bio: writer['bio'] as String? ?? '',
+      avatar: writer['avatar'] as String? ?? '',
+      followerCount: (writer['followerCount'] as num?)?.toInt() ?? 0,
+      imagePath: images.isNotEmpty ? (images[0]['imageUrl'] as String? ?? '') : '',
+      galleryImagePaths: images
+          .map((img) => img['imageUrl'] as String? ?? '')
+          .where((url) => url.isNotEmpty)
+          .toList(),
+      contentType: '',
+      difficulty: '',
+      trekName: '',
+      destinationName: destination['destinationName'] as String? ?? '',
+      publishedAt: DateTime.tryParse(json['publishedAt'] as String? ?? '') ?? DateTime.now(),
+      readTimeMinutes: 0, // not in API
+      likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
+      commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
+      shares: 0, // not in API
+      isBookmarked: false, // not in API
+      isFeatured: false, // not in API
+      tags: const [], // not in API
+    );
+  }
+
   CommunityStory copyWith({
     String? id,
     String? title,
-    String? excerpt,
+    String? shortDescription,
     String? body,
-    String? authorName,
-    String? authorBio,
-    String? authorAvatarPath,
-    int? authorFollowers,
+    String? fullName,
+    String? bio,
+    String? avatar,
+    int? followerCount,
     String? imagePath,
     List<String>? galleryImagePaths,
     String? contentType,
     String? difficulty,
     String? trekName,
-    String? location,
-    DateTime? date,
+    String? destinationName,
+    DateTime? publishedAt,
     int? readTimeMinutes,
-    int? likes,
-    int? comments,
+    int? likeCount,
+    int? commentCount,
     int? shares,
     bool? isBookmarked,
     bool? isFeatured,
@@ -76,22 +110,22 @@ class CommunityStory extends Equatable {
     return CommunityStory(
       id: id ?? this.id,
       title: title ?? this.title,
-      excerpt: excerpt ?? this.excerpt,
+      shortDescription: shortDescription ?? this.shortDescription,
       body: body ?? this.body,
-      authorName: authorName ?? this.authorName,
-      authorBio: authorBio ?? this.authorBio,
-      authorAvatarPath: authorAvatarPath ?? this.authorAvatarPath,
-      authorFollowers: authorFollowers ?? this.authorFollowers,
+      fullName: fullName ?? this.fullName,
+      bio: bio ?? this.bio,
+      avatar: avatar ?? this.avatar,
+      followerCount: followerCount ?? this.followerCount,
       imagePath: imagePath ?? this.imagePath,
       galleryImagePaths: galleryImagePaths ?? this.galleryImagePaths,
       contentType: contentType ?? this.contentType,
       difficulty: difficulty ?? this.difficulty,
       trekName: trekName ?? this.trekName,
-      location: location ?? this.location,
-      date: date ?? this.date,
+      destinationName: destinationName ?? this.destinationName,
+      publishedAt: publishedAt ?? this.publishedAt,
       readTimeMinutes: readTimeMinutes ?? this.readTimeMinutes,
-      likes: likes ?? this.likes,
-      comments: comments ?? this.comments,
+      likeCount: likeCount ?? this.likeCount,
+      commentCount: commentCount ?? this.commentCount,
       shares: shares ?? this.shares,
       isBookmarked: isBookmarked ?? this.isBookmarked,
       isFeatured: isFeatured ?? this.isFeatured,
@@ -101,29 +135,29 @@ class CommunityStory extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        title,
-        excerpt,
-        body,
-        authorName,
-        authorBio,
-        authorAvatarPath,
-        authorFollowers,
-        imagePath,
-        galleryImagePaths,
-        contentType,
-        difficulty,
-        trekName,
-        location,
-        date,
-        readTimeMinutes,
-        likes,
-        comments,
-        shares,
-        isBookmarked,
-        isFeatured,
-        tags,
-      ];
+    id,
+    title,
+    shortDescription,
+    body,
+    fullName,
+    bio,
+    avatar,
+    followerCount,
+    imagePath,
+    galleryImagePaths,
+    contentType,
+    difficulty,
+    trekName,
+    destinationName,
+    publishedAt,
+    readTimeMinutes,
+    likeCount,
+    commentCount,
+    shares,
+    isBookmarked,
+    isFeatured,
+    tags,
+  ];
 }
 
 class CommunityFilters extends Equatable {

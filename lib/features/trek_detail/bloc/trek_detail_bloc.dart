@@ -1,19 +1,25 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
-
+import '../data/mapper/trek_detail_mapper.dart';
 import '../data/repository/trek_detail_mock_repository.dart';
+import '../data/repository/trek_detail_repository_impl.dart';
 import '../domain/models/trek_detail_model.dart';
+import '../domain/usecases/get_trek_detail.dart';
 
 part 'trek_detail_event.dart';
-
 part 'trek_detail_state.dart';
 
 class TrekDetailBloc extends Bloc<TrekDetailEvent, TrekDetailState> {
-  final TrekDetailMockRepository _repo;
+  final GetTrekDetail _getTrekDetail;
+  final TrekDetailMockRepository _fallbackRepo;
 
-  TrekDetailBloc({TrekDetailMockRepository? repo})
-      : _repo = repo ?? TrekDetailMockRepository(),
+  TrekDetailBloc({
+    GetTrekDetail? getTrekDetail,
+    TrekDetailMockRepository? fallbackRepo,
+  })  : _getTrekDetail =
+      getTrekDetail ?? GetTrekDetail(TrekDetailRepositoryImpl()),
+        _fallbackRepo = fallbackRepo ?? TrekDetailMockRepository(),
         super(const TrekDetailInitial()) {
     on<TrekDetailFetchEvent>(_onFetch);
     on<TrekDetailTabChangedEvent>(_onTabChanged);
@@ -26,7 +32,11 @@ class TrekDetailBloc extends Bloc<TrekDetailEvent, TrekDetailState> {
       TrekDetailFetchEvent event, Emitter<TrekDetailState> emit) async {
     emit(const TrekDetailLoading());
     try {
-      final detail = await _repo.fetchTrekDetail(event.trekId);
+      // Use API for top-level detail, fallback for deep sections.
+      final fallback = await _fallbackRepo.fetchTrekDetail(event.trekId);
+      final dto = await _getTrekDetail(event.trekId);
+      final detail = TrekDetailMapper.fromApi(dto, fallback: fallback);
+
       emit(TrekDetailLoaded(detail: detail));
     } catch (e) {
       emit(TrekDetailError('Failed to load trek: ${e.toString()}'));
@@ -48,9 +58,9 @@ class TrekDetailBloc extends Bloc<TrekDetailEvent, TrekDetailState> {
   }
 
   void _onSaveToggled(
-    TrekDetailSaveToggledEvent event,
-    Emitter<TrekDetailState> emit,
-  ) {
+      TrekDetailSaveToggledEvent event,
+      Emitter<TrekDetailState> emit,
+      ) {
     if (state is TrekDetailLoaded) {
       final s = state as TrekDetailLoaded;
       final updated = TrekDetail(
@@ -81,9 +91,9 @@ class TrekDetailBloc extends Bloc<TrekDetailEvent, TrekDetailState> {
   }
 
   void _onItineraryTapped(
-    TrekDetailItineraryDayTappedEvent event,
-    Emitter<TrekDetailState> emit,
-  ) {
+      TrekDetailItineraryDayTappedEvent event,
+      Emitter<TrekDetailState> emit,
+      ) {
     if (state is TrekDetailLoaded) {
       final s = state as TrekDetailLoaded;
       final current = s.expandedDayIndex;

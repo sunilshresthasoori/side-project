@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:trekkers_odyssey_v2/features/story_detail/data/repositories/story_detail_repository.dart';
 import '../data/repositories/story_detail_mock_repository.dart';
 import '../domain/models/story_detail_model.dart';
 
@@ -7,7 +8,7 @@ part 'story_detail_event.dart';
 part 'story_detail_state.dart';
 
 class StoryDetailBloc extends Bloc<StoryDetailEvent, StoryDetailState> {
-  final StoryDetailMockRepository repository;
+  final StoryDetailRepository repository;
 
   StoryDetailBloc({required this.repository})
       : super(const StoryDetailInitial()) {

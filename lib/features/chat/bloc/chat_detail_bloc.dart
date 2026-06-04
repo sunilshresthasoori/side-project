@@ -1,10 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../domain/models/chat_model.dart';
-import '../data/repositories/chat_mock_repository.dart';
+import '../domain/model/chat.dart';
+import '../data/repository/chat_mock_repository.dart';
 
 part 'chat_detail_event.dart';
-
 part 'chat_detail_state.dart';
 
 class ChatDetailBloc extends Bloc<ChatDetailEvent, ChatDetailState> {

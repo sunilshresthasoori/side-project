@@ -5,10 +5,9 @@ import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/widgets/shared_widgets.dart';
 import '../../bloc/community_bloc.dart';
-import '../../data/repositories/community_mock_repository.dart';
+import '../../data/repositories/community_repository.dart';
 import '../../domain/models/community_model.dart';
 import '../widgets/featured_story_card.dart';
-import '../widgets/filter_panel.dart';
 import '../widgets/story_grid_card.dart';
 
 class CommunityPage extends StatelessWidget {
@@ -17,7 +16,7 @@ class CommunityPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => CommunityBloc(repository: CommunityMockRepository())
+      create: (_) => CommunityBloc(repository: CommunityRepository())
         ..add(const CommunityFetchEvent()),
       child: const _CommunityView(),
     );
@@ -66,83 +65,32 @@ class _CommunityContent extends StatelessWidget {
           )
         : null;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isWide = constraints.maxWidth > 980;
-        return SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _BreadcrumbBar(onShare: () {}),
-              const SizedBox(height: 18),
-              _SearchBar(
-                onChanged: (value) => context
-                    .read<CommunityBloc>()
-                    .add(CommunitySearchChangedEvent(value)),
-              ),
-              const SizedBox(height: 18),
-              if (featured != null) ...[
-                FeaturedStoryCard(
-                  story: featured,
-                  onTap: () => AppRoutes.pushStoryDetail(
-                    context,
-                    storyId: featured.id,
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
-              if (isWide)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: hasStories
-                          ? _StoryGrid(stories: state.stories)
-                          : const _EmptyState(),
-                    ),
-                    const SizedBox(width: 18),
-                    SizedBox(
-                      width: 280,
-                      child: FilterPanel(
-                        filters: state.filters,
-                        locations: state.locations,
-                        difficulties: state.difficulties,
-                        contentTypes: state.contentTypes,
-                        sortOptions: state.sortOptions,
-                        onChanged: (filters) => context
-                            .read<CommunityBloc>()
-                            .add(CommunityFilterChangedEvent(filters)),
-                        onReset: () => context
-                            .read<CommunityBloc>()
-                            .add(const CommunityFilterResetEvent()),
-                      ),
-                    ),
-                  ],
-                )
-              else ...[
-                FilterPanel(
-                  filters: state.filters,
-                  locations: state.locations,
-                  difficulties: state.difficulties,
-                  contentTypes: state.contentTypes,
-                  sortOptions: state.sortOptions,
-                  onChanged: (filters) => context
-                      .read<CommunityBloc>()
-                      .add(CommunityFilterChangedEvent(filters)),
-                  onReset: () => context
-                      .read<CommunityBloc>()
-                      .add(const CommunityFilterResetEvent()),
-                ),
-                const SizedBox(height: 18),
-                hasStories
-                    ? _StoryGrid(stories: state.stories)
-                    : const _EmptyState(),
-              ],
-            ],
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _BreadcrumbBar(onShare: () {}),
+          const SizedBox(height: 18),
+          _SearchBar(
+            onChanged: (value) => context
+                .read<CommunityBloc>()
+                .add(CommunitySearchChangedEvent(value)),
           ),
-        );
-      },
+          const SizedBox(height: 18),
+          if (featured != null) ...[
+            FeaturedStoryCard(
+              story: featured,
+              onTap: () => AppRoutes.pushStoryDetail(
+                context,
+                storyId: featured.id,
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+          hasStories ? _StoryGrid(stories: state.stories) : const _EmptyState(),
+        ],
+      ),
     );
   }
 }
@@ -161,10 +109,11 @@ class _EmptyState extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(Icons.travel_explore, color: AppColors.textLight, size: 36),
+          const Icon(Icons.travel_explore,
+              color: AppColors.textLight, size: 36),
           const SizedBox(height: 10),
           Text(
-            'No stories match these filters yet.',
+            'No stories found yet.',
             style: AppTypography.body(context),
             textAlign: TextAlign.center,
           ),
@@ -183,7 +132,7 @@ class _BreadcrumbBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(
+        GestureDetector(
           child: Text(
             'Home > Community > Stories',
             style: GoogleFonts.dmSans(
@@ -254,24 +203,27 @@ class _StoryGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mediaSize = MediaQuery.sizeOf(context);
+    final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+    final crossAxisCount = mediaSize.width < 520 ? 1 : 2;
+    final extraExtent = ((textScale - 1.0).clamp(0.0, 0.8)) * 80.0;
+    final baseExtent = crossAxisCount == 1 ? 360.0 : 390.0;
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: stories.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
-        childAspectRatio: 0.72,
+        mainAxisExtent: baseExtent + extraExtent,
       ),
       itemBuilder: (context, index) {
         final story = stories[index];
         return StoryGridCard(
           story: story,
-          onTap: () => AppRoutes.pushStoryDetail(
-            context,
-            storyId: story.id,
-          ),
+          onTap: () => AppRoutes.pushStoryDetail(context, storyId: story.id),
           onBookmark: () => context
               .read<CommunityBloc>()
               .add(CommunityStoryBookmarkToggled(story.id)),
@@ -350,15 +302,7 @@ class _CommunitySkeleton extends StatelessWidget {
           const SizedBox(height: 18),
           const ShimmerBox(width: double.infinity, height: 190, radius: 24),
           const SizedBox(height: 20),
-          Row(
-            children: [
-              const Expanded(
-                child: ShimmerBox(width: double.infinity, height: 400, radius: 24),
-              ),
-              const SizedBox(width: 18),
-              ShimmerBox(width: 240, height: 400, radius: 24),
-            ],
-          ),
+          const ShimmerBox(width: double.infinity, height: 400, radius: 24),
           const SizedBox(height: 20),
           GridView.builder(
             shrinkWrap: true,

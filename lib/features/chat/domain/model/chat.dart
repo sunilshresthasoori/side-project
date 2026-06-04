@@ -1,11 +1,9 @@
 import 'package:equatable/equatable.dart';
 
 //  MESSAGE STATUS
-
 enum MessageStatus { sending, sent, delivered, read }
 
 enum MessageType { text, image, trekCard, location, voiceNote }
-
 //  CHAT MESSAGE
 
 class ChatMessage extends Equatable {
@@ -47,7 +45,7 @@ class ChatParticipant extends Equatable {
   final String avatarPath;
   final bool isOnline;
   final DateTime? lastSeen;
-  final String? tagline; // e.g. "EBC ✓ Annapurna ✓"
+  final String? tagline; //
 
   const ChatParticipant({
     required this.id,

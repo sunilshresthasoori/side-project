@@ -1,13 +1,13 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../data/repositories/community_mock_repository.dart';
+import '../data/repositories/community_repository.dart';
 import '../domain/models/community_model.dart';
 
 part 'community_event.dart';
 part 'community_state.dart';
 
 class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
-  final CommunityMockRepository repository;
+  final CommunityRepository repository;
 
   CommunityBloc({required this.repository}) : super(const CommunityInitial()) {
     on<CommunityFetchEvent>(_onFetch);
@@ -24,7 +24,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     emit(const CommunityLoading());
     try {
       final stories = await repository.fetchStories();
-      final filters = const CommunityFilters();
+      const filters = CommunityFilters();
       final loaded = CommunityLoaded(
         allStories: stories,
         stories: _applyFilters(stories, filters, ''),
@@ -105,13 +105,13 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     var filtered = stories.where((story) {
       final matchesQuery = lowerQuery.isEmpty ||
           story.title.toLowerCase().contains(lowerQuery) ||
-          story.excerpt.toLowerCase().contains(lowerQuery) ||
-          story.authorName.toLowerCase().contains(lowerQuery) ||
+          story.shortDescription.toLowerCase().contains(lowerQuery) ||
+          story.fullName.toLowerCase().contains(lowerQuery) ||
           story.trekName.toLowerCase().contains(lowerQuery) ||
-          story.location.toLowerCase().contains(lowerQuery);
+          story.destinationName.toLowerCase().contains(lowerQuery);
 
       final matchesLocation = filters.location == null ||
-          story.location == filters.location;
+          story.destinationName == filters.location;
       final matchesDifficulty = filters.difficulty == null ||
           story.difficulty == filters.difficulty;
       final matchesContentType = filters.contentType == null ||
@@ -125,17 +125,17 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
 
     switch (filters.sortBy) {
       case 'Most Liked':
-        filtered.sort((a, b) => b.likes.compareTo(a.likes));
+        filtered.sort((a, b) => b.likeCount.compareTo(a.likeCount));
         break;
       case 'Most Commented':
-        filtered.sort((a, b) => b.comments.compareTo(a.comments));
+        filtered.sort((a, b) => b.commentCount.compareTo(a.commentCount));
         break;
       case 'Most Shared':
         filtered.sort((a, b) => b.shares.compareTo(a.shares));
         break;
       case 'Latest':
       default:
-        filtered.sort((a, b) => b.date.compareTo(a.date));
+        filtered.sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
         break;
     }
 

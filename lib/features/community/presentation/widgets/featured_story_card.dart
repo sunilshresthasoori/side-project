@@ -73,7 +73,7 @@ class FeaturedStoryCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      story.excerpt,
+                      story.shortDescription,
                       style: AppTypography.body(context),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -157,7 +157,7 @@ class _AuthorRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _Avatar(path: story.authorAvatarPath),
+        _Avatar(path: story.avatar),
         const SizedBox(width: 10),
         Expanded(
           child: Column(
@@ -166,7 +166,7 @@ class _AuthorRow extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    story.authorName,
+                    story.fullName,
                     style: GoogleFonts.dmSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -178,7 +178,7 @@ class _AuthorRow extends StatelessWidget {
                 ],
               ),
               Text(
-                '${_formatDate(story.date)} · ${story.trekName}',
+                '${_formatDate(story.publishedAt)} · ${story.trekName}',
                 style: AppTypography.caption(context),
               ),
             ],
@@ -201,13 +201,13 @@ class _MetricsRow extends StatelessWidget {
         _Metric(
           icon: Icons.favorite_rounded,
           color: AppColors.coral,
-          value: story.likes,
+          value: story.likeCount,
         ),
         const SizedBox(width: 16),
         _Metric(
           icon: Icons.chat_bubble_outline_rounded,
           color: AppColors.textLight,
-          value: story.comments,
+          value: story.commentCount,
         ),
         const SizedBox(width: 16),
         _Metric(

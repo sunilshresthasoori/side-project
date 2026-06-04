@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -35,6 +36,14 @@ class _TrekCard extends StatelessWidget {
 
   const _TrekCard({required this.trek});
 
+  List<String> get _imageList {
+    if (trek.imagePaths.isNotEmpty) return trek.imagePaths;
+    final fallback = trek.imagePath.trim();
+    return fallback.isNotEmpty ? [fallback] : [''];
+  }
+
+  String _formatCoord(double? value) => (value ?? 0).toStringAsFixed(2);
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -52,11 +61,11 @@ class _TrekCard extends StatelessWidget {
           children: [
             // Image Area
             SizedBox(
-              height: 160,
+              height: 156,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  TrekAssetImage(assetPath: trek.imagePath, fit: BoxFit.cover),
+                  _SlidingImages(urls: _imageList),
                   // Bottom scrim
                   Container(
                     decoration: const BoxDecoration(
@@ -72,15 +81,15 @@ class _TrekCard extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        DifficultyBadge(level: trek.difficulty),
+                        DifficultyBadge(level: trek.destinationType),
                         _FavoriteButton(trek: trek),
                       ],
                     ),
                   ),
 
-                  // Price (bottom-left)
+                  // Altitude (bottom-left)
                   Positioned(
-                    bottom: 12,
+                    bottom: 10,
                     left: 12,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -90,7 +99,7 @@ class _TrekCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(AppRadius.full),
                       ),
                       child: Text(
-                        'NRs ${trek.priceNpr.toStringAsFixed(0)}',
+                        '${trek.altitudeM}m',
                         style: GoogleFonts.fredoka(
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
@@ -100,22 +109,22 @@ class _TrekCard extends StatelessWidget {
                     ),
                   ),
 
-                  // Rating (bottom-right)
+                  // Rating placeholder (bottom-right)
                   Positioned(
-                    bottom: 12,
+                    bottom: 10,
                     right: 12,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.55),
+                        color: Colors.black.withValues(alpha: 0.55),
                         borderRadius: BorderRadius.circular(AppRadius.full),
                       ),
                       child: StarRow(
-                        rating: trek.rating,
+                        rating: 0.0,
                         starColor: AppColors.saffron,
                         textColor: Colors.white70,
-                        reviewCount: 1,
+                        reviewCount: trek.views,
                       ),
                     ),
                   ),
@@ -124,77 +133,90 @@ class _TrekCard extends StatelessWidget {
             ),
 
             //  Info Area
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Text(
-                    trek.title,
-                    style: GoogleFonts.syne(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                      height: 1.2,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Title
+                    Text(
+                      trek.name,
+                      style: GoogleFonts.syne(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                        height: 1.2,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
 
-                  const SizedBox(height: 4),
+                    const SizedBox(height: 4),
 
-                  // Region
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on_rounded,
-                          size: 12, color: AppColors.coral),
-                      const SizedBox(width: 3),
-                      Expanded(
-                        child: Text(
-                          trek.region,
-                          style: GoogleFonts.dmSans(
-                            fontSize: 12,
-                            color: AppColors.textSub,
+                    // Region
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on_rounded,
+                            size: 12, color: AppColors.coral),
+                        const SizedBox(width: 3),
+                        Expanded(
+                          child: Text(
+                            trek.district,
+                            style: GoogleFonts.dmSans(
+                              fontSize: 12,
+                              color: AppColors.textSub,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
 
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 6),
 
-                  // Stats row: days | altitude
-                  Row(
-                    children: [
-                      _StatPill(
-                        icon: Icons.calendar_today_rounded,
-                        label: '${trek.durationDays}d',
-                        color: AppColors.glacierBlue,
-                      ),
-                      const SizedBox(width: 8),
-                      _StatPill(
-                        icon: Icons.filter_hdr_rounded,
-                        label:
-                            '${(trek.altitudeM / 1000).toStringAsFixed(1)}km',
-                        color: AppColors.electricTeal,
-                      ),
-                    ],
-                  ),
+                    // Lat / Lng
+                    Text(
+                      'Lat ${_formatCoord(trek.latitude)} • Lng ${_formatCoord(trek.longitude)}',
+                      style: AppTypography.caption(context),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
 
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 8),
 
-                  // Reviews count
-                  Text(
-                    '${trek.reviewCount.toString().replaceAllMapped(
-                          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                          (m) => '${m[1]},',
-                        )} reviews',
-                    style: AppTypography.caption(context),
-                  ),
-                ],
+                    // Stats row: views | altitude
+                    Row(
+                      children: [
+                        _StatPill(
+                          icon: Icons.visibility_rounded,
+                          label: '${trek.views}',
+                          color: AppColors.glacierBlue,
+                        ),
+                        const SizedBox(width: 8),
+                        _StatPill(
+                          icon: Icons.filter_hdr_rounded,
+                          label:
+                              '${(trek.altitudeM / 1000).toStringAsFixed(1)}km',
+                          color: AppColors.electricTeal,
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    // Reviews count
+                    Text(
+                      '${trek.views.toString().replaceAllMapped(
+                            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+                            (m) => '${m[1]},',
+                          )} reviews',
+                      style: AppTypography.caption(context),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -239,8 +261,8 @@ class _FavoriteButton extends StatelessWidget {
         height: 32,
         decoration: BoxDecoration(
           color: trek.isFavourite
-              ? AppColors.coral.withOpacity(0.9)
-              : Colors.black.withOpacity(0.45),
+              ? AppColors.coral.withValues(alpha: 0.9)
+              : Colors.black.withValues(alpha: 0.45),
           shape: BoxShape.circle,
         ),
         child: Icon(
@@ -270,7 +292,7 @@ class _StatPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppRadius.full),
       ),
       child: Row(
@@ -312,6 +334,62 @@ class FeaturedTreksSkeleton extends StatelessWidget {
           radius: 16,
         ),
       ),
+    );
+  }
+}
+
+//slider
+class _SlidingImages extends StatefulWidget {
+  final List<String> urls;
+  const _SlidingImages({required this.urls});
+
+  @override
+  State<_SlidingImages> createState() => _SlidingImagesState();
+}
+
+class _SlidingImagesState extends State<_SlidingImages> {
+  int _current = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.urls.length > 1) {
+      _timer = Timer.periodic(const Duration(seconds: 2), (_) {
+        if (mounted) {
+          setState(() =>
+              _current = (_current + 1) % widget.urls.length);
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.urls.isEmpty || widget.urls.first.isEmpty) {
+      return const ColoredBox(color: Colors.grey);
+    }
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        const ColoredBox(color: Color(0xFF0D1117)),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 600),
+          child: SizedBox.expand(
+            key: ValueKey(widget.urls[_current]),
+            child: TrekAssetImage(
+              assetPath: widget.urls[_current],
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

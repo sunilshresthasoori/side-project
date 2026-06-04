@@ -1,21 +1,13 @@
-// lib/features/chat/presentation/pages/conversations_page.dart
-//
-// STEP 12 — ConversationsPage
-// Shows the full list of conversations with:
-// - Search bar, pinned section, regular chats
-// - Shimmer loading, empty state, error state
-// Navigates to ChatDetailPage on row tap.
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/widgets/shared_widgets.dart';
-import '../../bloc/conversations_bloc.dart';
-import '../../domain/models/chat_model.dart';
+import '../../bloc/conversation_bloc.dart';
+import '../../domain/model/chat.dart';
 import '../widgets/conversation_tile.dart';
-import 'chat_detail_page.dart';
 
 class ConversationsPage extends StatelessWidget {
   const ConversationsPage({super.key});
@@ -62,6 +54,7 @@ class _ConversationsView extends StatelessWidget {
                   SliverToBoxAdapter(child: _EmptyState(query: s.searchQuery)),
                 ConversationsLoaded s =>
                   _ConversationList(conversations: s.filtered),
+                _ => SliverToBoxAdapter(child: _LoadingList()),
               },
             ],
           );
@@ -104,9 +97,9 @@ class _Header extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Messages',
+              Text('Conversations',
                   style: GoogleFonts.syne(
-                      fontSize: 28,
+                      fontSize: 20,
                       fontWeight: FontWeight.w800,
                       color: AppColors.textPrimary)),
               Text('Stay connected on the trail',
@@ -125,7 +118,7 @@ class _Header extends StatelessWidget {
                       color: AppColors.cardWhite,
                       borderRadius: BorderRadius.circular(AppRadius.sm),
                       boxShadow: AppShadows.card),
-                  child: const Icon(Icons.notifications_outlined,
+                  child: const Icon(Icons.message_rounded,
                       size: 20, color: AppColors.slateGray),
                 ),
               ),
@@ -138,7 +131,7 @@ class _Header extends StatelessWidget {
                   decoration: BoxDecoration(
                       gradient: AppGradients.tealAccent,
                       borderRadius: BorderRadius.circular(AppRadius.sm)),
-                  child: const Icon(Icons.person_add_alt_1_rounded,
+                  child: const Icon(Icons.add_rounded,
                       size: 18, color: Colors.white),
                 ),
               ),
@@ -199,7 +192,7 @@ class _ConversationList extends StatelessWidget {
       delegate: SliverChildListDelegate([
         // Pinned section
         if (pinned.isNotEmpty) ...[
-          _SectionLabel(label: '📌  PINNED'),
+          const _SectionLabel(label: '📌  PINNED'),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
@@ -227,7 +220,7 @@ class _ConversationList extends StatelessWidget {
         ],
 
         // Regular section
-        if (regular.isNotEmpty) _SectionLabel(label: 'ALL MESSAGES'),
+        if (regular.isNotEmpty) const _SectionLabel(label: 'ALL MESSAGES'),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
@@ -258,18 +251,7 @@ class _ConversationList extends StatelessWidget {
   }
 
   void _open(BuildContext context, Conversation conv) {
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (_, __, ___) => ChatDetailPage(conversation: conv),
-        transitionsBuilder: (_, anim, __, child) => SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
-              .animate(
-                  CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)),
-          child: child,
-        ),
-        transitionDuration: const Duration(milliseconds: 300),
-      ),
-    );
+    AppRoutes.pushChatDetail(context, conversation: conv);
   }
 }
 
@@ -293,7 +275,6 @@ class _SectionLabel extends StatelessWidget {
 }
 
 //  LOADING
-
 class _LoadingList extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
@@ -305,20 +286,19 @@ class _LoadingList extends StatelessWidget {
           child: Column(
             children: List.generate(
                 5,
-                (i) => Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
+                (i) => const Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       child: Row(children: [
-                        const ShimmerBox(width: 50, height: 50, radius: 25),
-                        const SizedBox(width: 14),
+                        ShimmerBox(width: 50, height: 50, radius: 25),
+                        SizedBox(width: 14),
                         Expanded(
                             child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                              const ShimmerBox(
-                                  width: 140, height: 14, radius: 7),
-                              const SizedBox(height: 6),
-                              const ShimmerBox(
+                              ShimmerBox(width: 140, height: 14, radius: 7),
+                              SizedBox(height: 6),
+                              ShimmerBox(
                                   width: double.infinity,
                                   height: 12,
                                   radius: 6),

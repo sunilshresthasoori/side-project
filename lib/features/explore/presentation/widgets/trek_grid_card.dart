@@ -12,9 +12,37 @@ class TrekGridCard extends StatelessWidget {
 
   const TrekGridCard({super.key, required this.trek});
 
+  String _joinNonEmpty(List<String?> parts, String separator) {
+    final filtered = parts
+        .where((p) => p != null && p.trim().isNotEmpty)
+        .map((p) => p!.trim())
+        .toList();
+    return filtered.join(separator);
+  }
+
+  String _distanceLabel(String? value) {
+    final cleaned = value?.trim() ?? '';
+    if (cleaned.isEmpty) return '';
+    final hasUnit = RegExp(r'[a-zA-Z]').hasMatch(cleaned);
+    return hasUnit ? cleaned : '$cleaned km';
+  }
+
   @override
   Widget build(BuildContext context) {
     const imgH = 180.0;
+    final locationDetail = _joinNonEmpty(
+      [trek.localLevel, trek.district, trek.province],
+      ' · ',
+    );
+    final accessDetail = _joinNonEmpty(
+      [
+        if ((trek.primaryAccessCity ?? '').trim().isNotEmpty)
+          'Access: ${trek.primaryAccessCity}',
+        _distanceLabel(trek.distanceFromAccessCity),
+      ],
+      ' · ',
+    );
+    final description = trek.description?.trim() ?? '';
 
     return GestureDetector(
       onTap: () => AppRoutes.pushTrekDetail(context, trekId: trek.id),
@@ -173,6 +201,36 @@ class TrekGridCard extends StatelessWidget {
                     // Rating
                     StarRow(rating: trek.rating, reviewCount: trek.reviewCount),
 
+                    if (locationDetail.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      _InfoRow(
+                        icon: Icons.map_outlined,
+                        text: locationDetail,
+                      ),
+                    ],
+
+                    if (accessDetail.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      _InfoRow(
+                        icon: Icons.alt_route_rounded,
+                        text: accessDetail,
+                      ),
+                    ],
+
+                    if (description.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.dmSans(
+                          fontSize: 10,
+                          color: AppColors.textSub,
+                          height: 1.25,
+                        ),
+                      ),
+                    ],
+
                     const SizedBox(height: 8),
 
                     // Highlight tags
@@ -281,6 +339,32 @@ class _HighlightTags extends StatelessWidget {
                 style: GoogleFonts.dmSans(
                     fontSize: 9, color: AppColors.glacierBlue)),
           ),
+      ],
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _InfoRow({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 12, color: AppColors.textSub),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.dmSans(fontSize: 10, color: AppColors.textSub),
+          ),
+        ),
       ],
     );
   }

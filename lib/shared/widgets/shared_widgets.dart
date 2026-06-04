@@ -33,13 +33,14 @@ class TrekAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               const SizedBox(
                 height: 20,
+                width: 10,
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "Trekkers",
+                    "TREKKERS",
                     style: GoogleFonts.syne(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -47,7 +48,7 @@ class TrekAppBar extends StatelessWidget implements PreferredSizeWidget {
                         letterSpacing: 2),
                   ),
                   Text(
-                    "Odyssey",
+                    "ODYSSEY",
                     style: GoogleFonts.syne(
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
@@ -69,7 +70,7 @@ class TrekAppBar extends StatelessWidget implements PreferredSizeWidget {
                 width: 8,
               ),
               _IconBtn(
-                icon: Icons.person_outline_rounded,
+                icon: Icons.chat_bubble_outline_outlined,
                 badge: true,
                 onTap: onMenuTap ?? () {},
               ),
@@ -200,10 +201,7 @@ class TagBadge extends StatelessWidget {
   final Color? textColor;
 
   const TagBadge(
-      {super.key,
-      required this.label,
-      required this.color,
-       this.textColor});
+      {super.key, required this.label, required this.color, this.textColor});
 
   @override
   Widget build(BuildContext context) {
@@ -335,13 +333,31 @@ class TrekAssetImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget image = Image.asset(
-      assetPath,
-      fit: fit,
-      width: width,
-      height: height,
-      errorBuilder: (_, __, ___) => _placeholder(),
-    );
+    final path = assetPath.trim();
+    if (path.isEmpty) {
+      return _placeholder();
+    }
+
+    final isNetwork = path.startsWith('http://') || path.startsWith('https://');
+    Widget image = isNetwork
+        ? Image.network(
+            path,
+            fit: fit,
+            width: width,
+            height: height,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return _placeholder();
+            },
+            errorBuilder: (_, __, ___) => _placeholder(),
+          )
+        : Image.asset(
+            path,
+            fit: fit,
+            width: width,
+            height: height,
+            errorBuilder: (_, __, ___) => _placeholder(),
+          );
 
     if (borderRadius != null) {
       image = ClipRRect(borderRadius: borderRadius!, child: image);

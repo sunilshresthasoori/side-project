@@ -83,7 +83,7 @@ class StoryGridCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               child: Row(
                 children: [
-                  _Avatar(path: story.authorAvatarPath),
+                  _Avatar(path: story.avatar),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(
@@ -91,12 +91,16 @@ class StoryGridCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Text(
-                              story.authorName,
-                              style: GoogleFonts.dmSans(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
+                            Flexible(
+                              child: Text(
+                                story.fullName,
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             const SizedBox(width: 6),
@@ -104,7 +108,7 @@ class StoryGridCard extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          _timeAgo(story.date),
+                          _timeAgo(story.publishedAt),
                           style: AppTypography.caption(context),
                         ),
                       ],
@@ -130,9 +134,10 @@ class StoryGridCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 6, 12, 0),
               child: Text(
-                story.excerpt,
+                story.shortDescription,
                 style: AppTypography.body(context),
-                maxLines: 2,
+                maxLines: 3
+                ,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -141,13 +146,15 @@ class StoryGridCard extends StatelessWidget {
               child: GestureDetector(
                 onTap: onTap,
                 child: Text(
-                  story.location,
+                  story.destinationName,
                   style: GoogleFonts.dmSans(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: AppColors.electricTeal,
                     decoration: TextDecoration.underline,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
@@ -158,13 +165,13 @@ class StoryGridCard extends StatelessWidget {
                   _Metric(
                     icon: Icons.favorite_rounded,
                     color: AppColors.coral,
-                    value: story.likes,
+                    value: story.likeCount,
                   ),
                   const SizedBox(width: 12),
                   _Metric(
                     icon: Icons.chat_bubble_outline_rounded,
                     color: AppColors.textLight,
-                    value: story.comments,
+                    value: story.commentCount,
                   ),
                   const SizedBox(width: 12),
                   _Metric(

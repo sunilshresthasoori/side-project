@@ -48,22 +48,32 @@ class _CategoryCard extends StatelessWidget {
   // Each category gets a distinct accent color for its overlay tint
   Color get _accentTint {
     switch (category.id) {
-      case 'high-altitude': return const Color(0x442D6A9F);
-      case 'forest-trails': return const Color(0x441A6B3A);
-      case 'glacier-walks': return const Color(0x4400D4C8);
-      case 'cultural-routes': return const Color(0x44FF9F0A);
-      default: return const Color(0x991A202C);
+      case 'high-altitude':
+        return const Color(0x442D6A9F);
+      case 'forest-trails':
+        return const Color(0x441A6B3A);
+      case 'glacier-walks':
+        return const Color(0x4400D4C8);
+      case 'cultural-routes':
+        return const Color(0x44FF9F0A);
+      default:
+        return const Color(0x991A202C);
     }
   }
 
   // Distinct icon per category
   IconData get _icon {
     switch (category.id) {
-      case 'high-altitude':   return Icons.filter_hdr_rounded;
-      case 'forest-trails':   return Icons.forest_rounded;
-      case 'glacier-walks':   return Icons.ac_unit_rounded;
-      case 'cultural-routes': return Icons.temple_buddhist_rounded;
-      default:                return Icons.terrain;
+      case 'high-altitude':
+        return Icons.filter_hdr_rounded;
+      case 'forest-trails':
+        return Icons.forest_rounded;
+      case 'glacier-walks':
+        return Icons.ac_unit_rounded;
+      case 'cultural-routes':
+        return Icons.temple_buddhist_rounded;
+      default:
+        return Icons.terrain;
     }
   }
 
@@ -106,12 +116,13 @@ class _CategoryCard extends StatelessWidget {
                   children: [
                     // Icon badge (top-left)
                     Container(
-                      width: 40, height: 40,
+                      width: 40,
+                      height: 40,
                       decoration: BoxDecoration(
                         color: Colors.white.withAlpha(2),
                         borderRadius: BorderRadius.circular(AppRadius.sm),
                         border: Border.all(
-                          color: Colors.white.withAlpha(25),
+                          color: Colors.white.withAlpha(90),
                         ),
                       ),
                       child: Icon(_icon, color: Colors.white, size: 20),
@@ -124,8 +135,9 @@ class _CategoryCard extends StatelessWidget {
                         Text(
                           category.subtitle.toUpperCase(),
                           style: GoogleFonts.dmSans(
-                            fontSize: 10, fontWeight: FontWeight.w700,
-                            color: Colors.white.withAlpha(65),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white.withAlpha(80),
                             letterSpacing: 1.4,
                           ),
                         ),
@@ -133,8 +145,10 @@ class _CategoryCard extends StatelessWidget {
                         Text(
                           category.title,
                           style: GoogleFonts.syne(
-                            fontSize: 14, fontWeight: FontWeight.w800,
-                            color: Colors.white, height: 1.5,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            height: 1.5,
                           ),
                         ),
                       ],
@@ -145,9 +159,11 @@ class _CategoryCard extends StatelessWidget {
 
               // Tap arrow indicator (bottom-right)
               Positioned(
-                bottom: 14, right: 14,
+                bottom: 14,
+                right: 14,
                 child: Container(
-                  width: 28, height: 28,
+                  width: 28,
+                  height: 28,
                   decoration: BoxDecoration(
                     color: Colors.white.withAlpha(20),
                     shape: BoxShape.circle,
@@ -186,9 +202,10 @@ class CategoryGridSkeleton extends StatelessWidget {
         childAspectRatio: 1.05,
         children: List.generate(
           4,
-              (_) => ClipRRect(
+          (_) => ClipRRect(
             borderRadius: BorderRadius.circular(AppRadius.lg),
-            child: const ShimmerBox(width: double.infinity, height: double.infinity, radius: 16),
+            child: const ShimmerBox(
+                width: double.infinity, height: double.infinity, radius: 16),
           ),
         ),
       ),

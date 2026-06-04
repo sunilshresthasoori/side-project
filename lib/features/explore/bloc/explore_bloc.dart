@@ -1,18 +1,20 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../data/repository/explore_mock_repository.dart';
+import '../data/repository/explore_remote_repository.dart';
 import '../domain/model/explore_model.dart';
+import '../domain/usecases/get_destinations.dart';
+import '../service/explore_filter_model.dart';
 
 part 'explore_event.dart';
-
 part 'explore_state.dart';
 
 class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
-  final ExploreMockRepository _repo;
+  final GetDestinations _getDestinations;
 
-  ExploreBloc({ExploreMockRepository? repo})
-      : _repo = repo ?? ExploreMockRepository(),
+  ExploreBloc({GetDestinations? getDestinations})
+      : _getDestinations = getDestinations ??
+      GetDestinations(ExploreRemoteRepository()),
         super(const ExploreInitial()) {
     on<ExploreFetchEvent>(_onFetch);
     on<ExploreSearchChangedEvent>(_onSearchChanged);
@@ -29,19 +31,26 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
 
   //  FETCH
   Future<void> _onFetch(
-      ExploreFetchEvent event, Emitter<ExploreState> emit) async {
+      ExploreFetchEvent event,
+      Emitter<ExploreState> emit,
+      ) async {
     emit(const ExploreLoading());
     try {
-      final results = await Future.wait([
-        _repo.fetchTreks(),
-        _repo.fetchRecentlyViewed(),
-      ]);
-      final treks = results[0] as List<ExploreTrek>;
-      final recent = results[1] as List<RecentlyViewedTrek>;
+      final request = _buildRequest(
+        query: '',
+        mood: 'all',
+        filters: ExploreFilters.empty,
+        sort: ExploreSort.mostPopular,
+        page: 0,
+      );
+
+      final response = await _getDestinations(request);
+      final treks = response.data.map(ExploreTrek.fromDestination).toList();
+
       emit(ExploreLoaded(
         allTreks: treks,
         filteredTreks: treks,
-        recentlyViewed: recent,
+        recentlyViewed: const [],
       ));
     } catch (e) {
       emit(ExploreError('Failed to load treks: $e'));
@@ -50,12 +59,14 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
 
   //  SEARCH
   void _onSearchChanged(
-      ExploreSearchChangedEvent event, Emitter<ExploreState> emit) {
+      ExploreSearchChangedEvent event, Emitter<ExploreState> emit) async {
     if (state is! ExploreLoaded) return;
     final s = state as ExploreLoaded;
-    final filtered = _applyAll(
-        s.allTreks, event.query, s.activeMood, s.activeFilters, s.activeSort);
-    emit(s.copyWith(searchQuery: event.query, filteredTreks: filtered));
+    await _fetchTreks(
+      emit,
+      s,
+      query: event.query,
+    );
   }
 
   //  VIEW TOGGLE
@@ -67,27 +78,31 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
 
   //  MOOD FILTER
   void _onMoodChanged(
-      ExploreMoodFilterChangedEvent event, Emitter<ExploreState> emit) {
+      ExploreMoodFilterChangedEvent event, Emitter<ExploreState> emit) async {
     if (state is! ExploreLoaded) return;
     final s = state as ExploreLoaded;
-    final filtered = _applyAll(
-        s.allTreks, s.searchQuery, event.mood, s.activeFilters, s.activeSort);
-    emit(s.copyWith(activeMood: event.mood, filteredTreks: filtered));
+    await _fetchTreks(
+      emit,
+      s,
+      mood: event.mood,
+    );
   }
 
   //  FILTERS APPLIED
   void _onFiltersApplied(
-      ExploreFiltersAppliedEvent event, Emitter<ExploreState> emit) {
+      ExploreFiltersAppliedEvent event, Emitter<ExploreState> emit) async {
     if (state is! ExploreLoaded) return;
     final s = state as ExploreLoaded;
-    final filtered = _applyAll(
-        s.allTreks, s.searchQuery, s.activeMood, event.filters, s.activeSort);
-    emit(s.copyWith(activeFilters: event.filters, filteredTreks: filtered));
+    await _fetchTreks(
+      emit,
+      s,
+      filters: event.filters,
+    );
   }
 
   //  REMOVE ONE FILTER CHIP
   void _onSingleFilterRemoved(
-      ExploreSingleFilterRemovedEvent event, Emitter<ExploreState> emit) {
+      ExploreSingleFilterRemovedEvent event, Emitter<ExploreState> emit) async {
     if (state is! ExploreLoaded) return;
     final s = state as ExploreLoaded;
     final f = s.activeFilters;
@@ -113,20 +128,23 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
       updated = f;
     }
 
-    final filtered = _applyAll(
-        s.allTreks, s.searchQuery, s.activeMood, updated, s.activeSort);
-    emit(s.copyWith(activeFilters: updated, filteredTreks: filtered));
+    await _fetchTreks(
+      emit,
+      s,
+      filters: updated,
+    );
   }
 
   //  RESET FILTERS
   void _onFiltersReset(
-      ExploreFiltersResetEvent event, Emitter<ExploreState> emit) {
+      ExploreFiltersResetEvent event, Emitter<ExploreState> emit) async {
     if (state is! ExploreLoaded) return;
     final s = state as ExploreLoaded;
-    final filtered = _applyAll(s.allTreks, s.searchQuery, s.activeMood,
-        ExploreFilters.empty, s.activeSort);
-    emit(s.copyWith(
-        activeFilters: ExploreFilters.empty, filteredTreks: filtered));
+    await _fetchTreks(
+      emit,
+      s,
+      filters: ExploreFilters.empty,
+    );
   }
 
   //  BOOKMARK
@@ -137,23 +155,32 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
 
     ExploreTrek toggle(ExploreTrek t) => t.id == event.trekId
         ? ExploreTrek(
-            id: t.id,
-            title: t.title,
-            region: t.region,
-            country: t.country,
-            imagePath: t.imagePath,
-            difficulty: t.difficulty,
-            durationDays: t.durationDays,
-            maxAltitudeM: t.maxAltitudeM,
-            rating: t.rating,
-            reviewCount: t.reviewCount,
-            highlightTags: t.highlightTags,
-            moods: t.moods,
-            bestSeason: t.bestSeason,
-            isTrending: t.isTrending,
-            isBookmarked: !t.isBookmarked,
-            isTrekOfWeek: t.isTrekOfWeek,
-          )
+      id: t.id,
+      title: t.title,
+      region: t.region,
+      country: t.country,
+      imagePath: t.imagePath,
+      difficulty: t.difficulty,
+      durationDays: t.durationDays,
+      maxAltitudeM: t.maxAltitudeM,
+      rating: t.rating,
+      reviewCount: t.reviewCount,
+      highlightTags: t.highlightTags,
+      moods: t.moods,
+      bestSeason: t.bestSeason,
+      destinationType: t.destinationType,
+      province: t.province,
+      district: t.district,
+      localLevel: t.localLevel,
+      primaryAccessCity: t.primaryAccessCity,
+      distanceFromAccessCity: t.distanceFromAccessCity,
+      description: t.description,
+      latitude: t.latitude,
+      longitude: t.longitude,
+      isTrending: t.isTrending,
+      isBookmarked: !t.isBookmarked,
+      isTrekOfWeek: t.isTrekOfWeek,
+    )
         : t;
 
     emit(s.copyWith(
@@ -181,65 +208,105 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
     }
   }
 
-  //  SORT
-  void _onSortChanged(
-      ExploreSortChangedEvent event, Emitter<ExploreState> emit) {
-    if (state is! ExploreLoaded) return;
-    final s = state as ExploreLoaded;
-    final filtered = _applyAll(
-        s.allTreks, s.searchQuery, s.activeMood, s.activeFilters, event.sort);
-    emit(s.copyWith(activeSort: event.sort, filteredTreks: filtered));
+  FilterRequest _buildRequest({
+    required String query,
+    required String mood,
+    required ExploreFilters filters,
+    required ExploreSort sort,
+    required int page,
+  }) {
+    final criteria = <FilterCriterionRequest>[];
+
+    for (final location in filters.locations) {
+      criteria.add(FilterCriterionRequest(key: 'province', value: location));
+    }
+
+    for (final difficulty in filters.difficulties) {
+      criteria
+          .add(FilterCriterionRequest(key: 'difficulty', value: difficulty));
+    }
+
+    for (final season in filters.seasons) {
+      criteria.add(FilterCriterionRequest(key: 'season', value: season));
+    }
+
+    if (mood != 'all') {
+      criteria.add(FilterCriterionRequest(key: 'mood', value: mood));
+    }
+
+    final sortBy = _mapSortToField(sort);
+
+    return FilterRequest(
+      search: query,
+      filterCriteriaRequests: criteria,
+      paginationRequest: PaginationRequest(
+        page: page,
+        size: 10,
+        sortBy: sortBy,
+      ),
+    );
   }
 
-  //  UNIFIED FILTER + SEARCH + SORT
-  List<ExploreTrek> _applyAll(
-    List<ExploreTrek> source,
-    String query,
-    String mood,
-    ExploreFilters filters,
-    ExploreSort sort,
-  ) {
-    var result = source.where((t) {
-      // Search
-      if (query.isNotEmpty) {
-        final q = query.toLowerCase();
-        if (!t.title.toLowerCase().contains(q) &&
-            !t.region.toLowerCase().contains(q) &&
-            !t.highlightTags.any((tag) => tag.toLowerCase().contains(q))) {
-          return false;
-        }
-      }
-      // Mood
-      if (mood != 'all' && !t.moods.contains(mood)) return false;
-      // Location
-      if (filters.locations.isNotEmpty && !filters.locations.contains(t.region))
-        return false;
-      // Difficulty
-      if (filters.difficulties.isNotEmpty &&
-          !filters.difficulties.contains(t.difficulty)) return false;
-      // Duration
-      if (t.durationDays < filters.durationMin ||
-          t.durationDays > filters.durationMax) return false;
-      // Altitude
-      if (t.maxAltitudeM < filters.altitudeMin ||
-          t.maxAltitudeM > filters.altitudeMax) return false;
-      // Season
-      if (filters.seasons.isNotEmpty && !filters.seasons.contains(t.bestSeason))
-        return false;
-      return true;
-    }).toList();
-
-    // Sort
+  String _mapSortToField(ExploreSort sort) {
     switch (sort) {
       case ExploreSort.mostPopular:
-        result.sort((a, b) => b.reviewCount.compareTo(a.reviewCount));
+        return 'name';
       case ExploreSort.highestRated:
-        result.sort((a, b) => b.rating.compareTo(a.rating));
+        return 'name';
       case ExploreSort.shortestFirst:
-        result.sort((a, b) => a.durationDays.compareTo(b.durationDays));
+        return 'name';
       case ExploreSort.longestFirst:
-        result.sort((a, b) => b.durationDays.compareTo(a.durationDays));
+        return 'name';
     }
-    return result;
+  }
+
+  //  SORT
+  void _onSortChanged(
+      ExploreSortChangedEvent event, Emitter<ExploreState> emit) async {
+    if (state is! ExploreLoaded) return;
+    final s = state as ExploreLoaded;
+    await _fetchTreks(
+      emit,
+      s,
+      sort: event.sort,
+    );
+  }
+
+  Future<void> _fetchTreks(
+      Emitter<ExploreState> emit,
+      ExploreLoaded state, {
+        String? query,
+        String? mood,
+        ExploreFilters? filters,
+        ExploreSort? sort,
+      }) async {
+    final nextQuery = query ?? state.searchQuery;
+    final nextMood = mood ?? state.activeMood;
+    final nextFilters = filters ?? state.activeFilters;
+    final nextSort = sort ?? state.activeSort;
+
+    try {
+      final request = _buildRequest(
+        query: nextQuery,
+        mood: nextMood,
+        filters: nextFilters,
+        sort: nextSort,
+        page: 0,
+      );
+
+      final response = await _getDestinations(request);
+      final treks = response.data.map(ExploreTrek.fromDestination).toList();
+
+      emit(state.copyWith(
+        searchQuery: nextQuery,
+        activeMood: nextMood,
+        activeFilters: nextFilters,
+        activeSort: nextSort,
+        allTreks: treks,
+        filteredTreks: treks,
+      ));
+    } catch (e) {
+      emit(ExploreError('Failed to load treks: $e'));
+    }
   }
 }

@@ -5,7 +5,7 @@ import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/widgets/shared_widgets.dart';
 import '../../bloc/trek_detail_bloc.dart';
 
-class DetailGallery extends StatelessWidget {
+class DetailGallery extends StatefulWidget {
   final List<String> images;
   final List<String> captions;
   final int currentIndex;
@@ -20,6 +20,37 @@ class DetailGallery extends StatelessWidget {
   });
 
   @override
+  State<DetailGallery> createState() => _DetailGalleryState();
+}
+
+class _DetailGalleryState extends State<DetailGallery> {
+  late final PageController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = PageController(initialPage: widget.currentIndex);
+  }
+
+  @override
+  void didUpdateWidget(covariant DetailGallery oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.currentIndex != oldWidget.currentIndex) {
+      _controller.animateToPage(
+        widget.currentIndex,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -29,24 +60,31 @@ class DetailGallery extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
+              const ColoredBox(color: Color(0xFF0D1117)),
               // Hero image
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 350),
-                child: TrekAssetImage(
-                  key: ValueKey(currentIndex),
-                  assetPath: images[currentIndex],
-                  fit: BoxFit.cover,
+              PageView.builder(
+                controller: _controller,
+                physics: const BouncingScrollPhysics(),
+                itemCount: widget.images.length,
+                onPageChanged: (i) => context
+                    .read<TrekDetailBloc>()
+                    .add(TrekDetailGalleryChangedEvent(i)),
+                itemBuilder: (_, i) => SizedBox.expand(
+                  child: TrekAssetImage(
+                    assetPath: widget.images[i],
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
 
-              // Bottom gradient (caption legibility)
+              // Bottom gradient
               Container(
                 decoration: const BoxDecoration(
                   gradient: AppGradients.heroOverlay,
                 ),
               ),
 
-              // Top gradient (button legibility)
+              // Top gradient
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -77,10 +115,11 @@ class DetailGallery extends StatelessWidget {
                 child: Row(
                   children: [
                     _GlassIconBtn(
-                      icon: isSaved
+                      icon: widget.isSaved
                           ? Icons.bookmark_rounded
                           : Icons.bookmark_border_rounded,
-                      iconColor: isSaved ? AppColors.saffron : Colors.white,
+                      iconColor:
+                          widget.isSaved ? AppColors.saffron : Colors.white,
                       onTap: () => context
                           .read<TrekDetailBloc>()
                           .add(const TrekDetailSaveToggledEvent()),
@@ -95,7 +134,7 @@ class DetailGallery extends StatelessWidget {
               ),
 
               //  Left arrow
-              if (currentIndex > 0)
+              if (widget.currentIndex > 0)
                 Positioned(
                   left: 14,
                   top: 0,
@@ -104,15 +143,15 @@ class DetailGallery extends StatelessWidget {
                     child: _GlassIconBtn(
                       icon: Icons.chevron_left_rounded,
                       size: 26,
-                      onTap: () => context
-                          .read<TrekDetailBloc>()
-                          .add(TrekDetailGalleryChangedEvent(currentIndex - 1)),
+                      onTap: () => context.read<TrekDetailBloc>().add(
+                          TrekDetailGalleryChangedEvent(
+                              widget.currentIndex - 1)),
                     ),
                   ),
                 ),
 
               //  Right arrow
-              if (currentIndex < images.length - 1)
+              if (widget.currentIndex < widget.images.length - 1)
                 Positioned(
                   right: 14,
                   top: 0,
@@ -121,9 +160,9 @@ class DetailGallery extends StatelessWidget {
                     child: _GlassIconBtn(
                       icon: Icons.chevron_right_rounded,
                       size: 26,
-                      onTap: () => context
-                          .read<TrekDetailBloc>()
-                          .add(TrekDetailGalleryChangedEvent(currentIndex + 1)),
+                      onTap: () => context.read<TrekDetailBloc>().add(
+                          TrekDetailGalleryChangedEvent(
+                              widget.currentIndex + 1)),
                     ),
                   ),
                 ),
@@ -139,7 +178,7 @@ class DetailGallery extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        captions[currentIndex],
+                        widget.captions[widget.currentIndex],
                         style: GoogleFonts.dmSans(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -158,7 +197,7 @@ class DetailGallery extends StatelessWidget {
                         borderRadius: BorderRadius.circular(AppRadius.full),
                       ),
                       child: Text(
-                        '${currentIndex + 1} / ${images.length}',
+                        '${widget.currentIndex + 1} / ${widget.images.length}',
                         style: GoogleFonts.dmSans(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -180,7 +219,7 @@ class DetailGallery extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: images.length,
+            itemCount: widget.images.length,
             separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, i) => GestureDetector(
               onTap: () => context
@@ -193,7 +232,7 @@ class DetailGallery extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(AppRadius.sm),
                   border: Border.all(
-                    color: i == currentIndex
+                    color: i == widget.currentIndex
                         ? AppColors.saffron
                         : Colors.transparent,
                     width: 2.5,
@@ -204,8 +243,9 @@ class DetailGallery extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      TrekAssetImage(assetPath: images[i], fit: BoxFit.cover),
-                      if (i != currentIndex)
+                      TrekAssetImage(
+                          assetPath: widget.images[i], fit: BoxFit.cover),
+                      if (i != widget.currentIndex)
                         Container(color: Colors.black.withOpacity(0.25)),
                     ],
                   ),
@@ -222,9 +262,9 @@ class DetailGallery extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => _FullScreenGallery(
-          images: images,
-          captions: captions,
-          initialIndex: currentIndex,
+          images: widget.images,
+          captions: widget.captions,
+          initialIndex: widget.currentIndex,
         ),
       ),
     );

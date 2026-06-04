@@ -81,7 +81,7 @@ class _HomeView extends StatelessWidget {
               SliverToBoxAdapter(
                 child: TrekAppBar(
                   onNotificationTap: () {},
-                  onMenuTap: () {},
+                  onMenuTap: () => AppRoutes.pushConversations(context),
                 ),
               ),
 
@@ -190,6 +190,7 @@ class _HomeView extends StatelessWidget {
 
 class _ErrorState extends StatelessWidget {
   final String message;
+
   const _ErrorState({required this.message});
 
   @override

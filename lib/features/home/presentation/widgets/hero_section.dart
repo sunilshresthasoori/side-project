@@ -36,7 +36,7 @@ class HeroSection extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             TrekAssetImage(
-              assetPath: 'assets/images/hero_bg.png',
+              assetPath: 'assets/images/hero_bg.jpg',
               fit: BoxFit.cover,
               borderRadius: BorderRadius.circular(AppRadius.xl),
             ),

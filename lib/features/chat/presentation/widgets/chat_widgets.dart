@@ -1,16 +1,14 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/widgets/shared_widgets.dart';
-import '../../bloc/chat_bloc.dart';
-import '../../bloc/chat_event.dart';
+import '../../bloc/chat_detail_bloc.dart';
 import '../../domain/model/chat.dart';
 
-//  CHAT HEADER 
+//  CHAT HEADER
 
 class ChatHeader extends StatelessWidget {
   final Conversation conversation;
@@ -40,7 +38,8 @@ class ChatHeader extends StatelessWidget {
               GestureDetector(
                 onTap: () => Navigator.of(context).pop(),
                 child: Container(
-                  width: 36, height: 36,
+                  width: 36,
+                  height: 36,
                   decoration: BoxDecoration(
                     color: AppColors.snowFog,
                     borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -65,7 +64,7 @@ class ChatHeader extends StatelessWidget {
                     children: [
                       Text(
                         conversation.displayName,
-                        style: GoogleFonts.syne(
+                        style: GoogleFonts.dmSans(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
                           color: AppColors.textPrimary,
@@ -75,7 +74,8 @@ class ChatHeader extends StatelessWidget {
                         children: [
                           if (conversation.isOnline)
                             Container(
-                              width: 6, height: 6,
+                              width: 6,
+                              height: 6,
                               margin: const EdgeInsets.only(right: 4),
                               decoration: const BoxDecoration(
                                 color: AppColors.electricTeal,
@@ -101,8 +101,7 @@ class ChatHeader extends StatelessWidget {
 
               // Action icons
               _HeaderIcon(icon: Icons.videocam_outlined, onTap: () {}),
-              _HeaderIcon(icon: Icons.call_outlined,     onTap: () {}),
-              _HeaderIcon(icon: Icons.more_vert_rounded, onTap: () {}),
+              _HeaderIcon(icon: Icons.call_outlined, onTap: () {}),
             ],
           ),
         ),
@@ -117,67 +116,98 @@ class _HeaderAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Stack(
-    children: [
-      ClipOval(
-        child: SizedBox(
-          width: 40, height: 40,
-          child: conversation.displayAvatarPath.isNotEmpty
-              ? TrekAssetImage(assetPath: conversation.displayAvatarPath, fit: BoxFit.cover)
-              : Container(
-            decoration: const BoxDecoration(gradient: AppGradients.tealAccent),
-            child: const Icon(Icons.people_rounded, color: Colors.white, size: 20),
-          ),
-        ),
-      ),
-      if (conversation.isOnline)
-        Positioned(
-          bottom: 1, right: 1,
-          child: Container(
-            width: 10, height: 10,
-            decoration: BoxDecoration(
-              color: AppColors.electricTeal,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 1.5),
+        children: [
+          ClipOval(
+            child: SizedBox(
+              width: 40,
+              height: 40,
+              child: conversation.displayAvatarPath.isNotEmpty
+                  ? TrekAssetImage(
+                      assetPath: conversation.displayAvatarPath,
+                      fit: BoxFit.cover)
+                  : Container(
+                      decoration: const BoxDecoration(
+                          gradient: AppGradients.tealAccent),
+                      child: const Icon(Icons.people_rounded,
+                          color: Colors.white, size: 20),
+                    ),
             ),
           ),
-        ),
-    ],
-  );
+          if (conversation.isOnline)
+            Positioned(
+              bottom: 1,
+              right: 1,
+              child: Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: AppColors.electricTeal,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 1.5),
+                ),
+              ),
+            ),
+        ],
+      );
 }
 
 class _HeaderIcon extends StatelessWidget {
-  final IconData     icon;
+  final IconData icon;
   final VoidCallback onTap;
   const _HeaderIcon({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: Container(
-      width: 36, height: 36,
-      margin: const EdgeInsets.only(left: 4),
-      decoration: BoxDecoration(
-        color: AppColors.snowFog,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-      ),
-      child: Icon(icon, size: 18, color: AppColors.slateGray),
-    ),
-  );
+        onTap: onTap,
+        child: Container(
+          width: 36,
+          height: 36,
+          margin: const EdgeInsets.only(left: 4),
+          decoration: BoxDecoration(
+            color: AppColors.snowFog,
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+          ),
+          child: Icon(icon, size: 18, color: AppColors.slateGray),
+        ),
+      );
 }
 
-//  DATE SEPARATOR 
+//  DATE SEPARATOR
 
 class DateSeparator extends StatelessWidget {
   final DateTime date;
   const DateSeparator({super.key, required this.date});
 
   String get _label {
-    final now  = DateTime.now();
+    final now = DateTime.now();
     final diff = now.difference(date);
     if (diff.inDays == 0) return 'Today';
     if (diff.inDays == 1) return 'Yesterday';
-    if (diff.inDays < 7)  return ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][date.weekday - 1];
-    final months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    if (diff.inDays < 7) {
+      return [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
+      ][date.weekday - 1];
+    }
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
@@ -199,7 +229,8 @@ class DateSeparator extends StatelessWidget {
             child: Text(
               _label,
               style: GoogleFonts.dmSans(
-                fontSize: 11, fontWeight: FontWeight.w600,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
                 color: AppColors.textLight,
               ),
             ),
@@ -211,11 +242,11 @@ class DateSeparator extends StatelessWidget {
   }
 }
 
-//  MESSAGE BUBBLE 
+//  MESSAGE BUBBLE
 
 class MessageBubble extends StatelessWidget {
-  final ChatMessage  message;
-  final bool         showAvatar; // show sender avatar (first of a group)
+  final ChatMessage message;
+  final bool showAvatar; // show sender avatar (first of a group)
 
   const MessageBubble({
     super.key,
@@ -235,7 +266,7 @@ class MessageBubble extends StatelessWidget {
         ),
         child: Row(
           mainAxisAlignment:
-          message.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+              message.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             // Sender avatar (received messages)
@@ -244,11 +275,13 @@ class MessageBubble extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 8),
                 child: showAvatar
                     ? ClipOval(
-                  child: TrekAssetImage(
-                    assetPath: 'assets/images/avatar_karma.jpg',
-                    width: 28, height: 28, fit: BoxFit.cover,
-                  ),
-                )
+                        child: TrekAssetImage(
+                          assetPath: 'assets/images/avatar_karma.jpg',
+                          width: 28,
+                          height: 28,
+                          fit: BoxFit.cover,
+                        ),
+                      )
                     : const SizedBox(width: 28),
               ),
 
@@ -261,19 +294,23 @@ class MessageBubble extends StatelessWidget {
                 children: [
                   // Reply preview
                   if (message.replyPreview != null)
-                    _ReplyPreview(preview: message.replyPreview!, isMe: message.isMe),
+                    _ReplyPreview(
+                        preview: message.replyPreview!, isMe: message.isMe),
 
                   // Main bubble
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
                       gradient: message.isMe ? AppGradients.tealAccent : null,
                       color: message.isMe ? null : AppColors.cardWhite,
                       borderRadius: BorderRadius.only(
-                        topLeft:     const Radius.circular(AppRadius.lg),
-                        topRight:    const Radius.circular(AppRadius.lg),
-                        bottomLeft:  Radius.circular(message.isMe ? AppRadius.lg : AppRadius.xs),
-                        bottomRight: Radius.circular(message.isMe ? AppRadius.xs : AppRadius.lg),
+                        topLeft: const Radius.circular(AppRadius.lg),
+                        topRight: const Radius.circular(AppRadius.lg),
+                        bottomLeft: Radius.circular(
+                            message.isMe ? AppRadius.lg : AppRadius.xs),
+                        bottomRight: Radius.circular(
+                            message.isMe ? AppRadius.xs : AppRadius.lg),
                       ),
                       boxShadow: AppShadows.card,
                     ),
@@ -286,7 +323,9 @@ class MessageBubble extends StatelessWidget {
                           message.content,
                           style: GoogleFonts.dmSans(
                             fontSize: 14,
-                            color: message.isMe ? Colors.white : AppColors.textPrimary,
+                            color: message.isMe
+                                ? Colors.white
+                                : AppColors.textPrimary,
                             height: 1.45,
                           ),
                         ),
@@ -334,15 +373,19 @@ class MessageBubble extends StatelessWidget {
         child: Container(
           decoration: const BoxDecoration(
             color: AppColors.cardWhite,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+            borderRadius:
+                BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 margin: const EdgeInsets.only(top: 12, bottom: 8),
-                width: 40, height: 4,
-                decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(4)),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                    color: AppColors.divider,
+                    borderRadius: BorderRadius.circular(4)),
               ),
               // Message preview
               Container(
@@ -354,17 +397,26 @@ class MessageBubble extends StatelessWidget {
                 ),
                 child: Text(
                   message.content,
-                  style: GoogleFonts.dmSans(fontSize: 13, color: AppColors.textSub),
+                  style: GoogleFonts.dmSans(
+                      fontSize: 13, color: AppColors.textSub),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              _MsgAction(icon: Icons.reply_rounded, label: 'Reply', color: AppColors.glacierBlue,
+              _MsgAction(
+                  icon: Icons.reply_rounded,
+                  label: 'Reply',
+                  color: AppColors.glacierBlue,
                   onTap: () {
-                    context.read<ChatDetailBloc>().add(ChatDetailReplySetEvent(message));
+                    context
+                        .read<ChatDetailBloc>()
+                        .add(ChatDetailReplySetEvent(message));
                     Navigator.pop(context);
                   }),
-              _MsgAction(icon: Icons.copy_rounded, label: 'Copy Text', color: AppColors.slateGray,
+              _MsgAction(
+                  icon: Icons.copy_rounded,
+                  label: 'Copy Text',
+                  color: AppColors.slateGray,
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: message.content));
                     Navigator.pop(context);
@@ -378,7 +430,7 @@ class MessageBubble extends StatelessWidget {
   }
 
   String _formatTime(DateTime dt) =>
-      '${dt.hour.toString().padLeft(2,'0')}:${dt.minute.toString().padLeft(2,'0')}';
+      '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 }
 
 class _BubbleReceipt extends StatelessWidget {
@@ -387,55 +439,84 @@ class _BubbleReceipt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => switch (status) {
-    MessageStatus.sending   => const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 1.5, color: Colors.white54)),
-    MessageStatus.sent      => const Icon(Icons.check_rounded,    size: 14, color: Colors.white70),
-    MessageStatus.delivered => const Icon(Icons.done_all_rounded, size: 14, color: Colors.white70),
-    MessageStatus.read      => const Icon(Icons.done_all_rounded, size: 14, color: Colors.white),
-  };
+        MessageStatus.sending => const SizedBox(
+            width: 12,
+            height: 12,
+            child: CircularProgressIndicator(
+                strokeWidth: 1.5, color: Colors.white54)),
+        MessageStatus.sent =>
+          const Icon(Icons.check_rounded, size: 14, color: Colors.white70),
+        MessageStatus.delivered =>
+          const Icon(Icons.done_all_rounded, size: 14, color: Colors.white70),
+        MessageStatus.read =>
+          const Icon(Icons.done_all_rounded, size: 14, color: Colors.white),
+      };
 }
 
 class _ReplyPreview extends StatelessWidget {
   final String preview;
-  final bool   isMe;
+  final bool isMe;
   const _ReplyPreview({required this.preview, required this.isMe});
 
   @override
   Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.only(bottom: 4),
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    decoration: BoxDecoration(
-      color: isMe
-          ? AppColors.electricTeal.withOpacity(0.2)
-          : AppColors.snowFog,
-      borderRadius: BorderRadius.circular(AppRadius.sm),
-      border: Border(left: BorderSide(color: isMe ? Colors.white.withOpacity(0.6) : AppColors.glacierBlue, width: 3)),
-    ),
-    child: Text(
-      preview,
-      style: GoogleFonts.dmSans(
-        fontSize: 11, color: isMe ? Colors.white.withOpacity(0.8) : AppColors.textSub,
-      ),
-      maxLines: 2, overflow: TextOverflow.ellipsis,
-    ),
-  );
+        margin: const EdgeInsets.only(bottom: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: isMe
+              ? AppColors.electricTeal.withOpacity(0.2)
+              : AppColors.snowFog,
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+          border: Border(
+              left: BorderSide(
+                  color: isMe
+                      ? Colors.white.withOpacity(0.6)
+                      : AppColors.glacierBlue,
+                  width: 3)),
+        ),
+        child: Text(
+          preview,
+          style: GoogleFonts.dmSans(
+            fontSize: 11,
+            color: isMe ? Colors.white.withOpacity(0.8) : AppColors.textSub,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      );
 }
 
 class _MsgAction extends StatelessWidget {
-  final IconData icon; final String label; final Color color; final VoidCallback onTap;
-  const _MsgAction({required this.icon, required this.label, required this.color, required this.onTap});
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+  const _MsgAction(
+      {required this.icon,
+      required this.label,
+      required this.color,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(children: [
-        Container(width: 36, height: 36,
-            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(AppRadius.sm)),
-            child: Icon(icon, size: 18, color: color)),
-        const SizedBox(width: 14),
-        Text(label, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-      ]),
-    ),
-  );
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Row(children: [
+            Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppRadius.sm)),
+                child: Icon(icon, size: 18, color: color)),
+            const SizedBox(width: 14),
+            Text(label,
+                style: GoogleFonts.dmSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary)),
+          ]),
+        ),
+      );
 }

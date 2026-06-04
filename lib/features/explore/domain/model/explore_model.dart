@@ -1,7 +1,8 @@
 import 'package:equatable/equatable.dart';
 
-//  ENUMS
+import '../../service/explore_filter_model.dart';
 
+//  ENUMS
 enum ExploreView { grid, map }
 
 enum ExploreMood {
@@ -18,15 +19,14 @@ enum ExploreMood {
 enum ExploreSort { mostPopular, highestRated, shortestFirst, longestFirst }
 
 //  FILTERS
-
 class ExploreFilters extends Equatable {
-  final List<String> locations; // e.g. ['Khumbu', 'Mustang']
-  final List<String> difficulties; // e.g. ['Hard', 'Moderate']
+  final List<String> locations;
+  final List<String> difficulties;
   final int durationMin;
   final int durationMax;
   final int altitudeMin;
   final int altitudeMax;
-  final List<String> seasons; // e.g. ['Spring', 'Autumn']
+  final List<String> seasons;
 
   const ExploreFilters({
     this.locations = const [],
@@ -139,6 +139,15 @@ class ExploreTrek extends Equatable {
   final List<String> highlightTags;
   final List<String> moods; // matches ExploreMood labels
   final String bestSeason;
+  final String? destinationType;
+  final String? province;
+  final String? district;
+  final String? localLevel;
+  final String? primaryAccessCity;
+  final String? distanceFromAccessCity;
+  final String? description;
+  final String? latitude;
+  final String? longitude;
   final bool isTrending;
   final bool isBookmarked;
   final bool isTrekOfWeek;
@@ -157,6 +166,15 @@ class ExploreTrek extends Equatable {
     required this.highlightTags,
     required this.moods,
     required this.bestSeason,
+    this.destinationType,
+    this.province,
+    this.district,
+    this.localLevel,
+    this.primaryAccessCity,
+    this.distanceFromAccessCity,
+    this.description,
+    this.latitude,
+    this.longitude,
     this.isTrending = false,
     this.isBookmarked = false,
     this.isTrekOfWeek = false,
@@ -164,6 +182,42 @@ class ExploreTrek extends Equatable {
 
   @override
   List<Object?> get props => [id, isBookmarked];
+
+
+  factory ExploreTrek.fromDestination(DestinationResponse dto) {
+    final altitudeValue = int.tryParse(
+      dto.altitude?.replaceAll(RegExp(r'[^0-9]'), '') ?? '',
+    ) ?? 0;
+
+    final images = [...dto.images]
+      ..sort((a, b) => (a.displayOrder ?? 0).compareTo(b.displayOrder ?? 0));
+    final imagePath = images.isNotEmpty ? images.first.imageUrl : '';
+
+    return ExploreTrek(
+      id: dto.id.toString(),
+      title: dto.name,
+      region: dto.province ?? dto.district ?? '',
+      country: 'Nepal',
+      imagePath: imagePath,
+      difficulty: dto.destinationType,
+      durationDays: 0,
+      maxAltitudeM: altitudeValue,
+      rating: 0.0,
+      reviewCount: 0,
+      highlightTags: dto.highlights,
+      moods: const [],
+      bestSeason: '',
+      destinationType: dto.destinationType,
+      province: dto.province,
+      district: dto.district,
+      localLevel: dto.localLevel,
+      primaryAccessCity: dto.primaryAccessCity,
+      distanceFromAccessCity: dto.distanceFromAccessCity,
+      description: dto.description,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+    );
+  }
 }
 
 //  RECENTLY VIEWED
@@ -184,3 +238,4 @@ class RecentlyViewedTrek extends Equatable {
   @override
   List<Object?> get props => [id];
 }
+

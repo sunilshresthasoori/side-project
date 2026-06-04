@@ -1,18 +1,16 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-
-import '../data/repository/home_mock_repo.dart';
+import 'package:trekkers_odyssey_v2/features/home/data/repository/home_repo.dart';
 import '../domain/models/trek_models.dart';
 
 part 'home_event.dart';
-
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  final HomeMockRepository _repository;
+  final HomeRepository _repository;
 
-  HomeBloc({HomeMockRepository? repository})
-      : _repository = repository ?? HomeMockRepository(),
+  HomeBloc({HomeRepository? repository})
+      : _repository = repository ?? HomeRepository(),
         super(const HomeInitial()) {
     on<FetchHomeDataEvent>(_onFetchData);
     on<SearchHomeEvent>(_onSearchData);
@@ -20,17 +18,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<ToggleFavouriteTrekStoryEvent>(_onStoryLikedToggled);
   }
 
-// fetch data implementation
   Future<void> _onFetchData(
-    FetchHomeDataEvent event,
-    Emitter<HomeState> emit,
-  ) async {
+      FetchHomeDataEvent event,
+      Emitter<HomeState> emit,
+      ) async {
     emit(const HomeLoading());
     try {
-      // all three APIs fires at once
       final results = await Future.wait([
         _repository.fetchCategories(),
-        _repository.fetchFeaturedTrek(),
+        _repository.fetchFeaturedTreks(),
         _repository.fetchCommunityStories(),
       ]);
 
@@ -60,19 +56,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       final current = state as HomeLoaded;
       final updated = current.featuredTreks.map((trek) {
         if (trek.id == event.trekId) {
-          return FeaturedTrek(
-            id: trek.id,
-            title: trek.title,
-            region: trek.region,
-            imagePath: trek.imagePath,
-            durationDays: trek.durationDays,
-            altitudeM: trek.altitudeM,
-            priceNpr: trek.priceNpr,
-            rating: trek.rating,
-            reviewCount: trek.reviewCount,
-            difficulty: trek.difficulty,
-            isFavourite: !trek.isFavourite,
-          );
+          return trek.copyWith(isFavourite: !trek.isFavourite);
         }
         return trek;
       }).toList();
@@ -85,7 +69,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   void _onStoryLikedToggled(ToggleFavouriteTrekStoryEvent event, Emitter<HomeState>emit,){
     if(state is HomeLoaded){
       final current = state as HomeLoaded;
-      final updated = current.communityStories.map((communityStory){
+      emit(current.copyWith(communityStories: current.communityStories.map((communityStory){
         if(communityStory.id == event.storyId){
           return CommunityStory(
               imagePath: communityStory.imagePath,
@@ -100,7 +84,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               title: communityStory.title
           );
         }
-      });
+        return communityStory;
+      }).toList()));
     }
   }
 }

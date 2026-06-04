@@ -1,5 +1,4 @@
-
-part of 'conversations_bloc.dart';
+part of 'conversation_bloc.dart';
 
 abstract class ConversationsState extends Equatable {
   const ConversationsState();
@@ -18,7 +17,7 @@ class ConversationsLoading extends ConversationsState {
 class ConversationsLoaded extends ConversationsState {
   final List<Conversation> all;
   final List<Conversation> filtered;
-  final String             searchQuery;
+  final String searchQuery;
 
   const ConversationsLoaded({
     required this.all,
@@ -29,11 +28,11 @@ class ConversationsLoaded extends ConversationsState {
   ConversationsLoaded copyWith({
     List<Conversation>? all,
     List<Conversation>? filtered,
-    String?             searchQuery,
+    String? searchQuery,
   }) =>
       ConversationsLoaded(
-        all:         all         ?? this.all,
-        filtered:    filtered    ?? this.filtered,
+        all: all ?? this.all,
+        filtered: filtered ?? this.filtered,
         searchQuery: searchQuery ?? this.searchQuery,
       );
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:trekkers_odyssey_v2/features/story_detail/data/repositories/story_detail_repository.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/widgets/shared_widgets.dart';
 import '../../bloc/story_detail_bloc.dart';
@@ -20,7 +21,7 @@ class StoryDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => StoryDetailBloc(repository: StoryDetailMockRepository())
+      create: (_) => StoryDetailBloc(repository: StoryDetailRepository())
         ..add(StoryDetailFetchEvent(storyId)),
       child: _StoryDetailView(storyId: storyId),
     );
@@ -156,11 +157,11 @@ class _StoryBody extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        SectionHeader(title: 'Photo Gallery'),
+        const SectionHeader(title: 'Photo Gallery'),
         const SizedBox(height: 12),
         PhotoGalleryGrid(images: story.galleryImagePaths),
         const SizedBox(height: 18),
-        SectionHeader(title: 'Comments'),
+        const SectionHeader(title: 'Comments'),
         const SizedBox(height: 12),
         CommentsSection(
           comments: story.commentList,
