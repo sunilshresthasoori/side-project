@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/widgets/shared_widgets.dart';
 import '../../bloc/trek_detail_bloc.dart';
@@ -10,6 +9,7 @@ import '../widgets/tab_hotel.dart';
 import '../widgets/tab_itenary.dart';
 import '../widgets/tab_overview.dart';
 import '../widgets/tab_route_map.dart';
+import '../widgets/tab_strategy.dart';
 
 import '../widgets/tab_reviews.dart';
 import '../widgets/tab_safety.dart';
@@ -103,6 +103,8 @@ class _TabBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     switch (state.activeTab) {
+      case TrekDetailTab.strategy:
+        return TabStrategy(detail: state.detail);
       case TrekDetailTab.overview:
         return TabOverview(detail: state.detail);
       case TrekDetailTab.routeMap:
@@ -143,13 +145,13 @@ class _StickyTabDelegate extends SliverPersistentHeaderDelegate {
         boxShadow: overlapsContent
             ? [
                 BoxShadow(
-                    color: AppColors.slateGray.withOpacity(0.1),
+                    color: AppColors.slateGray.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 2))
               ]
             : [],
       ),
-      // child: DetailTabBar(activeTab: activeTab),
+      child: DetailTabBar(activeTab: activeTab),
     );
   }
 

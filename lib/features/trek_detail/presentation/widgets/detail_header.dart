@@ -201,7 +201,7 @@ class DetailTabBar extends StatelessWidget {
     (TrekDetailTab.overview, 'Overview'),
     (TrekDetailTab.routeMap, 'Route Map'),
     (TrekDetailTab.itinerary, 'Itinerary'),
-    (TrekDetailTab.hotels, 'Hotels'),
+    // (TrekDetailTab.hotels, 'Hotels'),
     (TrekDetailTab.reviews, 'Reviews'),
     (TrekDetailTab.safety, 'Safety'),
   ];

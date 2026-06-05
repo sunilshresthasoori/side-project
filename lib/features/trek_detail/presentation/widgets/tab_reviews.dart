@@ -215,7 +215,7 @@ class _ReviewCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                      color: AppColors.electricTeal.withOpacity(0.4), width: 2),
+                      color: AppColors.electricTeal.withAlpha(40), width: 2),
                 ),
                 child: ClipOval(
                   child: TrekAssetImage(
@@ -242,12 +242,12 @@ class _ReviewCard extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 7, vertical: 2),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF2ECC71).withOpacity(0.12),
+                              color: const Color(0xFF2ECC71).withAlpha(12),
                               borderRadius:
                                   BorderRadius.circular(AppRadius.full),
                               border: Border.all(
                                   color:
-                                      const Color(0xFF2ECC71).withOpacity(0.4)),
+                                      const Color(0xFF2ECC71).withAlpha(40)),
                             ),
                             child: Text('Verified',
                                 style: GoogleFonts.dmSans(

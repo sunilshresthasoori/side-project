@@ -83,7 +83,7 @@ class SeasonalAlertBanner extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.electricTeal.withOpacity(0.08),
           borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border(
+          border: const Border(
             left: BorderSide(color: AppColors.electricTeal, width: 3),
           ),
         ),

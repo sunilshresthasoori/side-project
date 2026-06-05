@@ -40,7 +40,7 @@ class TabSafety extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _SectionTitle(icon: Icons.backpack_outlined, title: 'Packing List'),
+                const _SectionTitle(icon: Icons.backpack_outlined, title: 'Packing List'),
                 const SizedBox(height: 16),
                 // 2-column packing categories
                 ...List.generate(

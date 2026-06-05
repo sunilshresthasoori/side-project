@@ -2,6 +2,7 @@ part of 'trek_detail_bloc.dart';
 
 //the tabs matching horizontal tab bar
 enum TrekDetailTab {
+  strategy,
   overview,
   routeMap,
   itinerary,
@@ -35,7 +36,7 @@ class TrekDetailLoaded extends TrekDetailState {
       {required this.detail,
       this.activeTab = TrekDetailTab.overview,
       this.galleryIndex = 0,
-      this.expandedDayIndex = 0});
+      this.expandedDayIndex = -1});
 
   TrekDetailLoaded copyWith({
     TrekDetail? detail,

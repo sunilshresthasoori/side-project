@@ -5,7 +5,6 @@ import 'package:trekkers_odyssey_v2/features/story_detail/data/repositories/stor
 import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/widgets/shared_widgets.dart';
 import '../../bloc/story_detail_bloc.dart';
-import '../../data/repositories/story_detail_mock_repository.dart';
 import '../../domain/models/story_detail_model.dart';
 import '../widgets/author_card.dart';
 import '../widgets/comments_section.dart';

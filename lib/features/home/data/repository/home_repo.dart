@@ -45,27 +45,28 @@ class HomeRepository {
     return const [
       TrekCategory(
         id: '1',
-        title: 'Base Camp',
-        subtitle: 'High altitude',
-        imagePath: 'assets/images/base_camp.jpg',
+        title: 'High Altitude',
+        subtitle: '5000+',
+        imagePath: 'assets/images/cat_high_altitude.jpg',
       ),
       TrekCategory(
         id: '2',
-        title: 'Lakes',
-        subtitle: 'Scenic routes',
-        imagePath: 'assets/images/lakes.jpg',
+        title: 'Forest Trails',
+
+        subtitle: 'LUSH & GREEN',
+        imagePath: 'assets/images/cat_forest.jpg',
       ),
       TrekCategory(
         id: '3',
-        title: 'Valleys',
-        subtitle: 'Easy trails',
-        imagePath: 'assets/images/valley.jpg',
+        title: 'Glacier Walks',
+        subtitle: 'ICE & SNOW',
+        imagePath: 'assets/images/cat_glacier.jpg',
       ),
       TrekCategory(
         id: '4',
-        title: 'Passes',
-        subtitle: 'Adventure',
-        imagePath: 'assets/images/pass.jpg',
+        title: 'Cultural Routes',
+        subtitle: 'HERITAGE & FEST',
+        imagePath: 'assets/images/cat_cultural.jpg',
       ),
     ];
   }

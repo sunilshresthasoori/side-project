@@ -21,6 +21,45 @@ class _TabOverviewState extends State<TabOverview> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Floating Highlight Card
+        Transform.translate(
+          offset: const Offset(0, -24),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: BoxDecoration(
+              color: AppColors.cardWhite,
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+              border: Border.all(color: AppColors.divider.withOpacity(0.5)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _HighlightItem(
+                  icon: Icons.filter_hdr_rounded,
+                  label: 'Highest Point',
+                  value: '${widget.detail.maxAltitudeM}m',
+                  color: AppColors.electricTeal,
+                ),
+                Container(height: 30, width: 1, color: AppColors.divider),
+                _HighlightItem(
+                  icon: Icons.wb_sunny_rounded,
+                  label: 'Best Season',
+                  value: widget.detail.bestSeason,
+                  color: AppColors.saffron,
+                ),
+              ],
+            ),
+          ),
+        ),
+
         // about this
         _SectionCard(
           child: Column(
@@ -74,7 +113,7 @@ class _TabOverviewState extends State<TabOverview> {
           ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
 
         // Trek Statistics
         _SectionCard(
@@ -89,6 +128,7 @@ class _TabOverviewState extends State<TabOverview> {
                   DifficultyBadge(level: widget.detail.difficulty),
                 ],
               ),
+              const SizedBox(height: 16),
               // 2-column stat grid
               GridView.count(
                 shrinkWrap: true,
@@ -96,8 +136,8 @@ class _TabOverviewState extends State<TabOverview> {
                 physics: const NeverScrollableScrollPhysics(),
                 padding: EdgeInsets.zero,
                 crossAxisCount: 2,
-                mainAxisSpacing: 5,
-                crossAxisSpacing: 5,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
                 childAspectRatio: 2.8,
                 children: [
                   _StatRow(
@@ -127,30 +167,53 @@ class _TabOverviewState extends State<TabOverview> {
           ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
 
-        // Quick Actions
-        const _SectionCard(
+        // Why You'll Love This Trek
+        _SectionCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _SectionTitle(title: 'Quick Actions', icon: Icons.bolt_rounded),
-              SizedBox(height: 14),
+              const _SectionTitle(
+                  title: "Why You'll Love This Trek",
+                  icon: Icons.favorite_rounded),
+              const SizedBox(height: 16),
+              _HighlightBullet(
+                  text: 'Sunrise from Poon Hill', color: AppColors.saffron),
+              _HighlightBullet(
+                  text: 'Tea house experience', color: AppColors.electricTeal),
+              _HighlightBullet(
+                  text: 'Himalayan panorama', color: AppColors.glacierBlue),
+              _HighlightBullet(
+                  text: 'Beginner friendly', color: AppColors.coral),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // Quick Actions
+        _SectionCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _SectionTitle(title: 'Quick Actions', icon: Icons.bolt_rounded),
+              const SizedBox(height: 16),
               _QuickAction(
                   icon: Icons.download_rounded,
                   label: 'Download Itinerary',
                   color: AppColors.glacierBlue),
-              SizedBox(height: 10),
+              const SizedBox(height: 12),
               _QuickAction(
                   icon: Icons.chat_bubble_outline_rounded,
                   label: 'Ask a Question',
                   color: AppColors.glacierBlue),
-              SizedBox(height: 10),
+              const SizedBox(height: 12),
               _QuickAction(
                   icon: Icons.map_outlined,
                   label: 'View on Map',
                   color: AppColors.glacierBlue),
-              SizedBox(height: 10),
+              const SizedBox(height: 12),
               _QuickAction(
                   icon: Icons.share_rounded,
                   label: 'Share This Trek',
@@ -159,33 +222,36 @@ class _TabOverviewState extends State<TabOverview> {
           ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
 
         //  Similar Treks teaser
-        const _SectionCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _SectionTitle(
-                  title: 'Similar Treks', icon: Icons.explore_rounded),
-              SizedBox(height: 14),
-              _SimilarTrekRow(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: const _SectionTitle(
+              title: 'Similar Treks', icon: Icons.explore_rounded),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 180,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            children: const [
+              _SimilarTrekCard(
                 imagePath: 'assets/images/trek_annapurna.webp',
                 title: 'Annapurna Circuit',
                 duration: '15–20 days',
                 difficulty: 'Hard',
                 rating: 4.9,
               ),
-              Divider(height: 20, color: AppColors.divider),
-              _SimilarTrekRow(
+              _SimilarTrekCard(
                 imagePath: 'assets/images/trek_langtang.webp',
                 title: 'Langtang Valley Trek',
                 duration: '7–10 days',
                 difficulty: 'Moderate',
                 rating: 4.7,
               ),
-              Divider(height: 20, color: AppColors.divider),
-              _SimilarTrekRow(
+              _SimilarTrekCard(
                 imagePath: 'assets/images/trek_manaslu.png',
                 title: 'Manaslu Circuit Trek',
                 duration: '14–18 days',
@@ -196,32 +262,127 @@ class _TabOverviewState extends State<TabOverview> {
           ),
         ),
 
-        const SizedBox(height: 100), // space for booking bar
+        const SizedBox(height: 120), // space for booking bar
       ],
     );
   }
 }
 
+class _HighlightItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _HighlightItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, size: 20, color: color),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: GoogleFonts.dmSans(
+            fontSize: 10,
+            color: AppColors.textSub,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.syne(
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HighlightBullet extends StatelessWidget {
+  final String text;
+  final Color color;
+
+  const _HighlightBullet({required this.text, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            text,
+            style: GoogleFonts.dmSans(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
 //  SHARED COMPONENTS
 
-class _SectionCard extends StatelessWidget {
+class _SectionCard extends StatefulWidget {
   final Widget child;
 
   const _SectionCard({required this.child});
 
   @override
-  Widget build(BuildContext context) => Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: AppColors.cardWhite,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          boxShadow: AppShadows.card,
+  State<_SectionCard> createState() => _SectionCardState();
+}
+
+class _SectionCardState extends State<_SectionCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) => MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: AppColors.cardWhite,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            boxShadow: _isHovered ? AppShadows.soft : AppShadows.card,
+            border: Border.all(
+              color: _isHovered
+                  ? AppColors.saffron.withOpacity(0.3)
+                  : Colors.transparent,
+              width: 1,
+            ),
+          ),
+          child: widget.child,
         ),
-        child: child,
       );
 }
+
 
 class _SectionTitle extends StatelessWidget {
   final String title;
@@ -284,93 +445,172 @@ class _StatRow extends StatelessWidget {
       );
 }
 
-class _QuickAction extends StatelessWidget {
+class _QuickAction extends StatefulWidget {
   final IconData icon;
   final String label;
   final Color color;
 
-  const _QuickAction(
-      {required this.icon, required this.label, required this.color});
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: () {},
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.07),
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            border: Border.all(color: color.withOpacity(0.18)),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, size: 16, color: color),
-              const SizedBox(width: 12),
-              Text(label,
-                  style: GoogleFonts.dmSans(
-                      fontSize: 13, fontWeight: FontWeight.w600, color: color)),
-              const Spacer(),
-              Icon(Icons.arrow_forward_ios_rounded,
-                  size: 11, color: color.withOpacity(0.6)),
-            ],
-          ),
-        ),
-      );
+  State<_QuickAction> createState() => _QuickActionState();
 }
 
-class _SimilarTrekRow extends StatelessWidget {
+class _QuickActionState extends State<_QuickAction> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        setState(() => _isPressed = true);
+        await Future.delayed(const Duration(milliseconds: 1500));
+        if (mounted) setState(() => _isPressed = false);
+      },
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: _isPressed
+              ? widget.color.withOpacity(0.12)
+              : widget.color.withOpacity(0.07),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+          border: Border.all(
+            color: _isPressed
+                ? widget.color.withOpacity(0.4)
+                : widget.color.withOpacity(0.18),
+          ),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Icon(widget.icon, size: 16, color: widget.color),
+                const SizedBox(width: 12),
+                Text(
+                  widget.label,
+                  style: GoogleFonts.dmSans(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: widget.color,
+                  ),
+                ),
+                const Spacer(),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 11,
+                  color: widget.color.withOpacity(0.6),
+                ),
+              ],
+            ),
+            if (_isPressed) ...[
+              const SizedBox(height: 8),
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: const Duration(milliseconds: 1500),
+                builder: (context, value, _) {
+                  return LinearProgressIndicator(
+                    value: value,
+                    backgroundColor: widget.color.withOpacity(0.1),
+                    valueColor: AlwaysStoppedAnimation<Color>(widget.color),
+                    minHeight: 2,
+                    borderRadius: BorderRadius.circular(2),
+                  );
+                },
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SimilarTrekCard extends StatelessWidget {
   final String imagePath;
   final String title;
   final String duration;
   final String difficulty;
   final double rating;
 
-  const _SimilarTrekRow(
-      {required this.imagePath,
-      required this.title,
-      required this.duration,
-      required this.difficulty,
-      required this.rating});
+  const _SimilarTrekCard({
+    required this.imagePath,
+    required this.title,
+    required this.duration,
+    required this.difficulty,
+    required this.rating,
+  });
 
   @override
-  Widget build(BuildContext context) => Row(
+  Widget build(BuildContext context) {
+    return Container(
+      width: 200,
+      margin: const EdgeInsets.only(right: 12, bottom: 8),
+      decoration: BoxDecoration(
+        color: AppColors.cardWhite,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        boxShadow: AppShadows.card,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AppRadius.md),
+            ),
             child: TrekAssetImage(
-                assetPath: imagePath, width: 64, height: 52, fit: BoxFit.cover),
+              assetPath: imagePath,
+              width: double.infinity,
+              height: 100,
+              fit: BoxFit.cover,
+            ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
+          Padding(
+            padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: GoogleFonts.syne(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary)),
-                const SizedBox(height: 3),
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.syne(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.access_time_rounded,
-                        size: 11, color: AppColors.textLight),
-                    const SizedBox(width: 3),
-                    Text(duration,
-                        style: AppTypography.caption(context)
-                            .copyWith(fontSize: 11)),
-                    const SizedBox(width: 8),
-                    Text('• $difficulty',
-                        style: AppTypography.caption(context)
-                            .copyWith(fontSize: 11)),
+                    Text(
+                      duration,
+                      style: AppTypography.caption(context).copyWith(
+                        fontSize: 10,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '• $difficulty',
+                      style: AppTypography.caption(context).copyWith(
+                        fontSize: 10,
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: 4),
                 StarRow(rating: rating),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.textLight),
         ],
-      );
+      ),
+    );
+  }
 }
+

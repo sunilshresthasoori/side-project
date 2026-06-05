@@ -7,4 +7,10 @@ class ApiConstants{
   static const String getCommunityStories = "/api/v1/public/stories";
   static String getStoryDetail(String id) => "/api/v1/public/stories/$id";
 
+  // Strategy endpoints
+  static String getStrategies(String destinationId) => "/api/v1/public/destinations/$destinationId/strategies";
+  static String getStrategyDetail(String strategyId) => "/api/v1/public/strategies/$strategyId/detail";
+  static String getStrategyItineraries(String strategyId) => "/api/v1/public/strategies/$strategyId/itineraries";
+  static String getStrategyWaypoints(String strategyId) => "/api/v1/public/strategies/$strategyId/waypoints";
+  static String getStrategyPackings(String strategyId) => "/api/v1/public/strategies/$strategyId/packings";
 }
