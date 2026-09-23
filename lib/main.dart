@@ -14,8 +14,9 @@ Future<void> main() async {
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
+      statusBarColor: Colors.white,
+      statusBarIconBrightness: Brightness.dark, // For Android (dark icons)
+      statusBarBrightness: Brightness.light, // For iOS (dark icons)
       systemNavigationBarColor: Colors.white,
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
@@ -34,7 +35,7 @@ class TrekkersOdysseyAppV2 extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       onGenerateRoute: AppRouter.onGenerateRoute,
-      initialRoute: AppRoutes.home,
+      initialRoute: AppRoutes.splash,
     );
   }
 }

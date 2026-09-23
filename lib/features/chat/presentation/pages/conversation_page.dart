@@ -26,41 +26,8 @@ class _ConversationsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-
     return Scaffold(
       backgroundColor: AppColors.glacierWhite,
-      body: BlocBuilder<ConversationsBloc, ConversationsState>(
-        builder: (context, state) {
-          return CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              //  Header
-              SliverToBoxAdapter(child: _Header()),
-
-              //  Search bar
-              SliverToBoxAdapter(child: _SearchBar()),
-
-              const SliverToBoxAdapter(child: SizedBox(height: 8)),
-
-              //  Body
-              switch (state) {
-                ConversationsInitial() ||
-                ConversationsLoading() =>
-                  SliverToBoxAdapter(child: _LoadingList()),
-                ConversationsError e =>
-                  SliverToBoxAdapter(child: _ErrorView(message: e.message)),
-                ConversationsLoaded s when s.filtered.isEmpty =>
-                  SliverToBoxAdapter(child: _EmptyState(query: s.searchQuery)),
-                ConversationsLoaded s =>
-                  _ConversationList(conversations: s.filtered),
-                _ => SliverToBoxAdapter(child: _LoadingList()),
-              },
-            ],
-          );
-        },
-      ),
-      // Compose new message FAB
       floatingActionButton: Container(
         decoration: BoxDecoration(
           gradient: AppGradients.saffronAccent,
@@ -77,6 +44,40 @@ class _ConversationsView extends StatelessWidget {
               child: Icon(Icons.edit_rounded, color: Colors.white, size: 22),
             ),
           ),
+        ),
+      ),
+      body: SafeArea(
+        bottom: false,
+        child: BlocBuilder<ConversationsBloc, ConversationsState>(
+          builder: (context, state) {
+            return CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                //  Header
+                SliverToBoxAdapter(child: _Header()),
+
+                //  Search bar
+                SliverToBoxAdapter(child: _SearchBar()),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 8)),
+
+                //  Body
+                switch (state) {
+                  ConversationsInitial() ||
+                  ConversationsLoading() =>
+                    SliverToBoxAdapter(child: _LoadingList()),
+                  ConversationsError e =>
+                    SliverToBoxAdapter(child: _ErrorView(message: e.message)),
+                  ConversationsLoaded s when s.filtered.isEmpty =>
+                    SliverToBoxAdapter(
+                        child: _EmptyState(query: s.searchQuery)),
+                  ConversationsLoaded s =>
+                    _ConversationList(conversations: s.filtered),
+                  _ => SliverToBoxAdapter(child: _LoadingList()),
+                },
+              ],
+            );
+          },
         ),
       ),
     );

@@ -29,15 +29,15 @@ class _TabOverviewState extends State<TabOverview> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
               color: AppColors.cardWhite,
-              borderRadius: BorderRadius.circular(AppRadius.lg),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
               ],
-              border: Border.all(color: AppColors.divider.withOpacity(0.5)),
+              border: Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -170,14 +170,14 @@ class _TabOverviewState extends State<TabOverview> {
         const SizedBox(height: 16),
 
         // Why You'll Love This Trek
-        _SectionCard(
+        const _SectionCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const _SectionTitle(
+              _SectionTitle(
                   title: "Why You'll Love This Trek",
                   icon: Icons.favorite_rounded),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _HighlightBullet(
                   text: 'Sunrise from Poon Hill', color: AppColors.saffron),
               _HighlightBullet(
@@ -193,7 +193,7 @@ class _TabOverviewState extends State<TabOverview> {
         const SizedBox(height: 16),
 
         // Quick Actions
-        _SectionCard(
+        const _SectionCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/theme/app_theme.dart';
@@ -79,16 +78,17 @@ class _ProfileView extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
-
         return Scaffold(
           backgroundColor: AppColors.glacierWhite,
-          body: switch (state) {
-            ProfileInitial() || ProfileLoading() => _LoadingView(),
-            ProfileError e => _ErrorView(message: e.message),
-            ProfileLoaded s => _LoadedView(state: s),
-            _ => const _ErrorView(message: 'Unexpected profile state'),
-          },
+          body: SafeArea(
+            bottom: false,
+            child: switch (state) {
+              ProfileInitial() || ProfileLoading() => _LoadingView(),
+              ProfileError e => _ErrorView(message: e.message),
+              ProfileLoaded s => _LoadedView(state: s),
+              _ => const _ErrorView(message: 'Unexpected profile state'),
+            },
+          ),
         );
       },
     );
@@ -237,7 +237,7 @@ class _StickyTabDelegate extends SliverPersistentHeaderDelegate {
         boxShadow: overlapsContent
             ? [
                 BoxShadow(
-                    color: AppColors.slateGray.withOpacity(0.08),
+                    color: AppColors.slateGray.withValues(alpha: 0.08),
                     blurRadius: 8,
                     offset: const Offset(0, 2))
               ]

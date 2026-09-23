@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/theme/app_theme.dart';
@@ -48,15 +47,23 @@ class _ExploreView extends StatefulWidget {
 
 class _ExploreViewState extends State<_ExploreView> {
   // Animated subtitle ticker
-  int    _subtitleIndex = 0;
+  int _subtitleIndex = 0;
   Timer? _subtitleTimer;
-  static const _subtitles = ['240+ verified trails', '18K+ trekkers', '8 countries covered', '4.8★ avg rating'];
+  static const _subtitles = [
+    '240+ verified trails',
+    '18K+ trekkers',
+    '8 countries covered',
+    '4.8★ avg rating'
+  ];
 
   @override
   void initState() {
     super.initState();
     _subtitleTimer = Timer.periodic(const Duration(seconds: 3), (_) {
-      if (mounted) setState(() => _subtitleIndex = (_subtitleIndex + 1) % _subtitles.length);
+      if (mounted) {
+        setState(
+            () => _subtitleIndex = (_subtitleIndex + 1) % _subtitles.length);
+      }
     });
   }
 
@@ -68,111 +75,126 @@ class _ExploreViewState extends State<_ExploreView> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-
     return Scaffold(
       backgroundColor: AppColors.glacierWhite,
-      body: BlocBuilder<ExploreBloc, ExploreState>(
-        builder: (context, state) {
-          return NestedScrollView(
-            physics: const BouncingScrollPhysics(),
-            headerSliverBuilder: (context, _) => [
-              //  Sticky header 
-              SliverAppBar(
-                pinned: true,
-                floating: true,
-                backgroundColor: AppColors.glacierWhite,
-                elevation: 0,
-                scrolledUnderElevation: 1,
-                automaticallyImplyLeading: false,
-                toolbarHeight: 0,
-                flexibleSpace: Container(), // completely custom
-              ),
-            ],
-            body: CustomScrollView(
+      body: SafeArea(
+        bottom: false,
+        child: BlocBuilder<ExploreBloc, ExploreState>(
+          builder: (context, state) {
+            return NestedScrollView(
               physics: const BouncingScrollPhysics(),
-              slivers: [
-                //  Page header 
-                SliverToBoxAdapter(
-                  child: _PageHeader(
-                    subtitleText: _subtitles[_subtitleIndex],
-                    activeView: state is ExploreLoaded ? state.activeView : ExploreView.grid,
-                    activeSort: state is ExploreLoaded ? state.activeSort : ExploreSort.mostPopular,
-                  ),
+              headerSliverBuilder: (context, _) => [
+                //  Sticky header
+                SliverAppBar(
+                  pinned: true,
+                  floating: true,
+                  backgroundColor: AppColors.glacierWhite,
+                  elevation: 0,
+                  scrolledUnderElevation: 1,
+                  automaticallyImplyLeading: false,
+                  toolbarHeight: 0,
+                  collapsedHeight: 0,
+                  expandedHeight: 0,
+                  flexibleSpace: Container(), // completely custom
                 ),
-
-                const SliverToBoxAdapter(child: SizedBox(height: 14)),
-
-                //  Search bar 
-                SliverToBoxAdapter(
-                  child: ExploreSearchBar(
-                    activeFilterCount: state is ExploreLoaded
-                        ? state.activeFilters.activeCount
-                        : 0,
-                  ),
-                ),
-
-                const SliverToBoxAdapter(child: SizedBox(height: 12)),
-
-                //  Mood chips 
-                SliverToBoxAdapter(
-                  child: MoodChipsRow(
-                    activeMood: state is ExploreLoaded ? state.activeMood : 'all',
-                  ),
-                ),
-
-                const SliverToBoxAdapter(child: SizedBox(height: 10)),
-
-                //  Seasonal alert (dismissible) 
-                if (state is ExploreLoaded && state.seasonalAlertVisible)
-                  const SliverToBoxAdapter(child: SeasonalAlertBanner()),
-
-                if (state is ExploreLoaded && state.seasonalAlertVisible)
-                  const SliverToBoxAdapter(child: SizedBox(height: 10)),
-
-                //  Active filter chips 
-                if (state is ExploreLoaded && !state.activeFilters.isEmpty)
+              ],
+              body: CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  //  Page header
                   SliverToBoxAdapter(
-                    child: Column(
-                      children: [
-                        ActiveFiltersRow(filters: state.activeFilters),
-                        const SizedBox(height: 10),
-                      ],
+                    child: _PageHeader(
+                      subtitleText: _subtitles[_subtitleIndex],
+                      activeView: state is ExploreLoaded
+                          ? state.activeView
+                          : ExploreView.grid,
+                      activeSort: state is ExploreLoaded
+                          ? state.activeSort
+                          : ExploreSort.mostPopular,
                     ),
                   ),
 
-                //  Body: loading / grid / map / error / empty 
-                switch (state) {
-                  ExploreInitial() || ExploreLoading() => SliverToBoxAdapter(child: _LoadingSkeleton()),
-                  ExploreError e  => SliverToBoxAdapter(child: _ErrorView(message: e.message)),
-                  ExploreLoaded s => s.activeView == ExploreView.map
-                      ? _MapBody(state: s)
-                      : _GridBody(state: s),
-                  // TODO: Handle this case.
-                  ExploreState() => throw UnimplementedError(),
-                },
-              ],
-            ),
-          );
-        },
+                  const SliverToBoxAdapter(child: SizedBox(height: 14)),
+
+                  //  Search bar
+                  SliverToBoxAdapter(
+                    child: ExploreSearchBar(
+                      activeFilterCount: state is ExploreLoaded
+                          ? state.activeFilters.activeCount
+                          : 0,
+                    ),
+                  ),
+
+                  const SliverToBoxAdapter(child: SizedBox(height: 12)),
+
+                  //  Mood chips
+                  SliverToBoxAdapter(
+                    child: MoodChipsRow(
+                      activeMood:
+                          state is ExploreLoaded ? state.activeMood : 'all',
+                    ),
+                  ),
+
+                  const SliverToBoxAdapter(child: SizedBox(height: 10)),
+
+                  //  Seasonal alert (dismissible)
+                  if (state is ExploreLoaded && state.seasonalAlertVisible)
+                    const SliverToBoxAdapter(child: SeasonalAlertBanner()),
+
+                  if (state is ExploreLoaded && state.seasonalAlertVisible)
+                    const SliverToBoxAdapter(child: SizedBox(height: 10)),
+
+                  //  Active filter chips
+                  if (state is ExploreLoaded && !state.activeFilters.isEmpty)
+                    SliverToBoxAdapter(
+                      child: Column(
+                        children: [
+                          ActiveFiltersRow(filters: state.activeFilters),
+                          const SizedBox(height: 10),
+                        ],
+                      ),
+                    ),
+
+                  //  Body: loading / grid / map / error / empty
+                  switch (state) {
+                    ExploreInitial() ||
+                    ExploreLoading() =>
+                      SliverToBoxAdapter(child: _LoadingSkeleton()),
+                    ExploreError e =>
+                      SliverToBoxAdapter(child: _ErrorView(message: e.message)),
+                    ExploreLoaded s => s.activeView == ExploreView.map
+                        ? _mapBody(state: s)
+                        : _GridBody(state: s),
+                    // TODO: Handle this case.
+                    ExploreState() => throw UnimplementedError(),
+                  },
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
 }
 
-//  PAGE HEADER 
+//  PAGE HEADER
 
 class _PageHeader extends StatelessWidget {
-  final String      subtitleText;
+  final String subtitleText;
   final ExploreView activeView;
   final ExploreSort activeSort;
 
-  const _PageHeader({required this.subtitleText, required this.activeView, required this.activeSort});
+  const _PageHeader(
+      {required this.subtitleText,
+      required this.activeView,
+      required this.activeSort});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 12, 20, 0),
+      padding: EdgeInsets.fromLTRB(
+          20, MediaQuery.of(context).padding.top + 12, 20, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -187,8 +209,10 @@ class _PageHeader extends StatelessWidget {
                   Text(
                     'Discover Treks',
                     style: GoogleFonts.syne(
-                      fontSize: 26, fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary, height: 1.1,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimary,
+                      height: 1.1,
                     ),
                   ),
                   AnimatedSwitcher(
@@ -197,7 +221,8 @@ class _PageHeader extends StatelessWidget {
                       subtitleText,
                       key: ValueKey(subtitleText),
                       style: GoogleFonts.dmSans(
-                        fontSize: 12, color: AppColors.textSub,
+                        fontSize: 12,
+                        color: AppColors.textSub,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -218,13 +243,17 @@ class _PageHeader extends StatelessWidget {
                       icon: Icons.grid_view_rounded,
                       label: 'Grid',
                       isActive: activeView == ExploreView.grid,
-                      onTap: () => context.read<ExploreBloc>().add(const ExploreViewToggledEvent(ExploreView.grid)),
+                      onTap: () => context
+                          .read<ExploreBloc>()
+                          .add(const ExploreViewToggledEvent(ExploreView.grid)),
                     ),
                     _ViewToggleBtn(
                       icon: Icons.map_rounded,
                       label: 'Map',
                       isActive: activeView == ExploreView.map,
-                      onTap: () => context.read<ExploreBloc>().add(const ExploreViewToggledEvent(ExploreView.map)),
+                      onTap: () => context
+                          .read<ExploreBloc>()
+                          .add(const ExploreViewToggledEvent(ExploreView.map)),
                     ),
                   ],
                 ),
@@ -239,42 +268,53 @@ class _PageHeader extends StatelessWidget {
 
 class _ViewToggleBtn extends StatelessWidget {
   final IconData icon;
-  final String   label;
-  final bool     isActive;
+  final String label;
+  final bool isActive;
   final VoidCallback onTap;
 
-  const _ViewToggleBtn({required this.icon, required this.label, required this.isActive, required this.onTap});
+  const _ViewToggleBtn(
+      {required this.icon,
+      required this.label,
+      required this.isActive,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        gradient: isActive ? AppGradients.saffronAccent : null,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 14, color: isActive ? Colors.white : AppColors.textLight),
-          const SizedBox(width: 4),
-          Text(label, style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w600, color: isActive ? Colors.white : AppColors.textLight)),
-        ],
-      ),
-    ),
-  );
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            gradient: isActive ? AppGradients.saffronAccent : null,
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+          ),
+          child: Row(
+            children: [
+              Icon(icon,
+                  size: 14,
+                  color: isActive ? Colors.white : AppColors.textLight),
+              const SizedBox(width: 4),
+              Text(label,
+                  style: GoogleFonts.dmSans(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: isActive ? Colors.white : AppColors.textLight)),
+            ],
+          ),
+        ),
+      );
 }
 
-//  GRID BODY 
+//  GRID BODY
 
 class _GridBody extends StatelessWidget {
   final ExploreLoaded state;
+
   const _GridBody({required this.state});
 
   @override
   Widget build(BuildContext context) {
-    final treks     = state.filteredTreks;
+    final treks = state.filteredTreks;
     final trekOfWeek = state.allTreks.where((t) => t.isTrekOfWeek).firstOrNull;
 
     if (treks.isEmpty) return SliverToBoxAdapter(child: _EmptyState());
@@ -296,7 +336,10 @@ class _GridBody extends StatelessWidget {
             children: [
               Text(
                 '${treks.length} trek${treks.length == 1 ? '' : 's'} found',
-                style: GoogleFonts.syne(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                style: GoogleFonts.syne(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary),
               ),
               _SortDropdown(activeSort: state.activeSort),
             ],
@@ -321,11 +364,11 @@ class _GridBody extends StatelessWidget {
   }
 }
 
-//  GRID
 // Renders treks in pairs with consistent card sizing.
 
 class _StaggeredGrid extends StatelessWidget {
   final List<ExploreTrek> treks;
+
   const _StaggeredGrid({required this.treks});
 
   @override
@@ -333,8 +376,9 @@ class _StaggeredGrid extends StatelessWidget {
     final rows = (treks.length / 2).ceil();
     return Column(
       children: List.generate(rows, (rowIdx) {
-        final left  = treks[rowIdx * 2];
-        final right = rowIdx * 2 + 1 < treks.length ? treks[rowIdx * 2 + 1] : null;
+        final left = treks[rowIdx * 2];
+        final right =
+            rowIdx * 2 + 1 < treks.length ? treks[rowIdx * 2 + 1] : null;
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 14),
@@ -358,16 +402,17 @@ class _StaggeredGrid extends StatelessWidget {
   }
 }
 
-//  SORT DROPDOWN 
+//  SORT DROPDOWN
 
 class _SortDropdown extends StatelessWidget {
   final ExploreSort activeSort;
+
   const _SortDropdown({required this.activeSort});
 
   static const _labels = {
-    ExploreSort.mostPopular:  'Most Popular',
+    ExploreSort.mostPopular: 'Most Popular',
     ExploreSort.highestRated: 'Highest Rated',
-    ExploreSort.shortestFirst:'Shortest First',
+    ExploreSort.shortestFirst: 'Shortest First',
     ExploreSort.longestFirst: 'Longest First',
   };
 
@@ -384,13 +429,20 @@ class _SortDropdown extends StatelessWidget {
         child: DropdownButton<ExploreSort>(
           value: activeSort,
           isDense: true,
-          style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-          items: ExploreSort.values.map((s) => DropdownMenuItem(
-            value: s,
-            child: Text(_labels[s] ?? s.name),
-          )).toList(),
+          style: GoogleFonts.dmSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary),
+          items: ExploreSort.values
+              .map((s) => DropdownMenuItem(
+                    value: s,
+                    child: Text(_labels[s] ?? s.name),
+                  ))
+              .toList(),
           onChanged: (s) {
-            if (s != null) context.read<ExploreBloc>().add(ExploreSortChangedEvent(s));
+            if (s != null) {
+              context.read<ExploreBloc>().add(ExploreSortChangedEvent(s));
+            }
           },
         ),
       ),
@@ -398,9 +450,9 @@ class _SortDropdown extends StatelessWidget {
   }
 }
 
-//  MAP BODY 
+//  MAP BODY
 
-SliverToBoxAdapter _MapBody({required ExploreLoaded state}) {
+SliverToBoxAdapter _mapBody({required ExploreLoaded state}) {
   return SliverToBoxAdapter(
     child: SizedBox(
       height: 520,
@@ -412,7 +464,7 @@ SliverToBoxAdapter _MapBody({required ExploreLoaded state}) {
   );
 }
 
-//  EMPTY STATE 
+//  EMPTY STATE
 
 class _EmptyState extends StatelessWidget {
   @override
@@ -421,14 +473,22 @@ class _EmptyState extends StatelessWidget {
       padding: const EdgeInsets.all(40),
       child: Column(
         children: [
-          CustomPaint(size: const Size(120, 80), painter: _MountainSilhouette()),
+          CustomPaint(
+              size: const Size(120, 80), painter: _MountainSilhouette()),
           const SizedBox(height: 20),
-          Text('No treks found', style: GoogleFonts.syne(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+          Text('No treks found',
+              style: GoogleFonts.syne(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary)),
           const SizedBox(height: 8),
-          Text('Try adjusting your filters or search term', style: AppTypography.body(context), textAlign: TextAlign.center),
+          Text('Try adjusting your filters or search term',
+              style: AppTypography.body(context), textAlign: TextAlign.center),
           const SizedBox(height: 24),
           GestureDetector(
-            onTap: () => context.read<ExploreBloc>().add(const ExploreFiltersResetEvent()),
+            onTap: () => context
+                .read<ExploreBloc>()
+                .add(const ExploreFiltersResetEvent()),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 13),
               decoration: BoxDecoration(
@@ -436,7 +496,11 @@ class _EmptyState extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppRadius.full),
                 boxShadow: AppShadows.button,
               ),
-              child: Text('Clear Filters', style: GoogleFonts.syne(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+              child: Text('Clear Filters',
+                  style: GoogleFonts.syne(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white)),
             ),
           ),
         ],
@@ -469,30 +533,38 @@ class _MountainSilhouette extends CustomPainter {
   bool shouldRepaint(_) => false;
 }
 
-//  LOADING SKELETON 
+//  LOADING SKELETON
 
 class _LoadingSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         children: [
-          const ShimmerBox(width: double.infinity, height: 110, radius: 16),
-          const SizedBox(height: 16),
+          ShimmerBox(width: double.infinity, height: 110, radius: 16),
+          SizedBox(height: 16),
           Row(
-            children: const [
-              Expanded(child: ShimmerBox(width: double.infinity, height: 260, radius: 16)),
+            children: [
+              Expanded(
+                  child: ShimmerBox(
+                      width: double.infinity, height: 260, radius: 16)),
               SizedBox(width: 12),
-              Expanded(child: ShimmerBox(width: double.infinity, height: 200, radius: 16)),
+              Expanded(
+                  child: ShimmerBox(
+                      width: double.infinity, height: 200, radius: 16)),
             ],
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           Row(
-            children: const [
-              Expanded(child: ShimmerBox(width: double.infinity, height: 200, radius: 16)),
+            children: [
+              Expanded(
+                  child: ShimmerBox(
+                      width: double.infinity, height: 200, radius: 16)),
               SizedBox(width: 12),
-              Expanded(child: ShimmerBox(width: double.infinity, height: 260, radius: 16)),
+              Expanded(
+                  child: ShimmerBox(
+                      width: double.infinity, height: 260, radius: 16)),
             ],
           ),
         ],
@@ -501,10 +573,11 @@ class _LoadingSkeleton extends StatelessWidget {
   }
 }
 
-//  ERROR VIEW 
+//  ERROR VIEW
 
 class _ErrorView extends StatelessWidget {
   final String message;
+
   const _ErrorView({required this.message});
 
   @override
@@ -513,14 +586,17 @@ class _ErrorView extends StatelessWidget {
       padding: const EdgeInsets.all(40),
       child: Column(
         children: [
-          const Icon(Icons.wifi_off_rounded, size: 56, color: AppColors.textLight),
+          const Icon(Icons.wifi_off_rounded,
+              size: 56, color: AppColors.textLight),
           const SizedBox(height: 16),
           Text('Failed to load treks', style: AppTypography.headline(context)),
           const SizedBox(height: 8),
-          Text(message, style: AppTypography.body(context), textAlign: TextAlign.center),
+          Text(message,
+              style: AppTypography.body(context), textAlign: TextAlign.center),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: () => context.read<ExploreBloc>().add(const ExploreFetchEvent()),
+            onPressed: () =>
+                context.read<ExploreBloc>().add(const ExploreFetchEvent()),
             icon: const Icon(Icons.refresh_rounded),
             label: const Text('Retry'),
           ),

@@ -37,7 +37,7 @@ class TrekGridCard extends StatelessWidget {
     final accessDetail = _joinNonEmpty(
       [
         if ((trek.primaryAccessCity ?? '').trim().isNotEmpty)
-          'Access: ${trek.primaryAccessCity}',
+          'Access City: ${trek.primaryAccessCity}',
         _distanceLabel(trek.distanceFromAccessCity),
       ],
       ' · ',
@@ -49,7 +49,7 @@ class TrekGridCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.cardWhite,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           boxShadow: AppShadows.card,
         ),
         clipBehavior: Clip.antiAlias,
@@ -217,7 +217,7 @@ class TrekGridCard extends StatelessWidget {
                       ),
                     ],
 
-                    if (description.isNotEmpty) ...[
+                    /* if (description.isNotEmpty) ...[
                       const SizedBox(height: 6),
                       Text(
                         description,
@@ -229,12 +229,9 @@ class TrekGridCard extends StatelessWidget {
                           height: 1.25,
                         ),
                       ),
-                    ],
+                    ],*/
 
                     const SizedBox(height: 8),
-
-                    // Highlight tags
-                    _HighlightTags(tags: trek.highlightTags),
 
                     const Spacer(),
 
@@ -247,7 +244,7 @@ class TrekGridCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 9),
                         decoration: BoxDecoration(
                           gradient: AppGradients.saffronAccent,
-                          borderRadius: BorderRadius.circular(AppRadius.full),
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
                         ),
                         child: Center(
                           child: Text(

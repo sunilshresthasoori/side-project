@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
@@ -190,6 +191,11 @@ class AppTheme {
           elevation: 0,
           scrolledUnderElevation: 0,
           foregroundColor: AppColors.charcoal,
+          systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.dark, // For Android (dark icons)
+            statusBarBrightness: Brightness.light, // For iOS (dark icons)
+          ),
         ),
         cardTheme: CardThemeData(
           color: AppColors.cardWhite,

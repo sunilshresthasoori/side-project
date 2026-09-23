@@ -11,8 +11,7 @@ class TrekAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Padding(
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -78,7 +77,7 @@ class TrekAppBar extends StatelessWidget implements PreferredSizeWidget {
           )
         ],
       ),
-    ));
+    );
   }
 
   @override

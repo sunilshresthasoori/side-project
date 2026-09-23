@@ -63,124 +63,124 @@ class _HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-
     return Scaffold(
       backgroundColor: AppColors.glacierWhite,
-      extendBodyBehindAppBar: true,
       bottomNavigationBar: TrekBottomNav(
         currentIndex: navIndex,
         onTap: onNavTap,
       ),
-      body: BlocBuilder<HomeBloc, HomeState>(
-        builder: (context, state) {
-          return CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              //  Sticky App Bar
-              SliverToBoxAdapter(
-                child: TrekAppBar(
-                  onNotificationTap: () {},
-                  onMenuTap: () => AppRoutes.pushConversations(context),
+      body: SafeArea(
+        bottom: false,
+        child: BlocBuilder<HomeBloc, HomeState>(
+          builder: (context, state) {
+            return CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                //  Sticky App Bar
+                SliverToBoxAdapter(
+                  child: TrekAppBar(
+                    onNotificationTap: () {},
+                    onMenuTap: () => AppRoutes.pushConversations(context),
+                  ),
                 ),
-              ),
 
-              //  Hero
-              SliverToBoxAdapter(
-                child: HeroSection(
-                  onSearchChanged: (q) =>
-                      context.read<HomeBloc>().add(SearchHomeEvent(q)),
-                  onExploreTap: () => AppRoutes.pushExplore(context),
+                //  Hero
+                SliverToBoxAdapter(
+                  child: HeroSection(
+                    onSearchChanged: (q) =>
+                        context.read<HomeBloc>().add(SearchHomeEvent(q)),
+                    onExploreTap: () => AppRoutes.pushExplore(context),
+                  ),
                 ),
-              ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 32)),
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
 
-              //  EXPLORE TREKS
-              SliverToBoxAdapter(
-                child: SectionHeader(
-                  title: 'Explore Treks',
-                  actionLabel: 'All →',
-                  onAction: () => onNavTap(1),
+                //  EXPLORE TREKS
+                SliverToBoxAdapter(
+                  child: SectionHeader(
+                    title: 'Explore Treks',
+                    actionLabel: 'All →',
+                    onAction: () => onNavTap(1),
+                  ),
                 ),
-              ),
 
-              // Category 2×2 grid
-              SliverToBoxAdapter(
-                child: switch (state) {
-                  HomeLoaded s => CategoryGrid(
-                      categories: s.categories,
-                      onCategoryTap: (_) => onNavTap(1),
-                    ),
-                  HomeLoading() => const CategoryGridSkeleton(),
-                  _ => const SizedBox.shrink(),
-                },
-              ),
-
-              const SliverToBoxAdapter(child: SizedBox(height: 28)),
-
-              // Quick stats banner
-              const SliverToBoxAdapter(child: QuickStatsBanner()),
-
-              const SliverToBoxAdapter(
-                  child: SizedBox(
-                height: 30,
-                width: 40,
-              )),
-              //  FEATURED TREKS
-              SliverToBoxAdapter(
-                child: SectionHeader(
-                  title: 'Featured Treks',
-                  actionLabel: 'All →',
-                  onAction: () => onNavTap(1),
+                // Category 2×2 grid
+                SliverToBoxAdapter(
+                  child: switch (state) {
+                    HomeLoaded s => CategoryGrid(
+                        categories: s.categories,
+                        onCategoryTap: (_) => onNavTap(1),
+                      ),
+                    HomeLoading() => const CategoryGridSkeleton(),
+                    _ => const SizedBox.shrink(),
+                  },
                 ),
-              ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 30)),
+                const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-              SliverToBoxAdapter(
-                child: switch (state) {
-                  HomeLoaded s => FeaturedTreksSection(
-                      treks: s.featuredTreks,
-                    ),
-                  HomeLoading() => const FeaturedTreksSkeleton(),
-                  _ => const SizedBox.shrink(),
-                },
-              ),
+                // Quick stats banner
+                const SliverToBoxAdapter(child: QuickStatsBanner()),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 32)),
-
-              //  COMMUNITY STORIES
-              SliverToBoxAdapter(
-                child: SectionHeader(
-                  title: 'Community Stories',
-                  actionLabel: 'View all',
-                  onAction: () =>
-                      Navigator.of(context).pushNamed(AppRoutes.community),
+                const SliverToBoxAdapter(
+                    child: SizedBox(
+                  height: 30,
+                  width: 40,
+                )),
+                //  FEATURED TREKS
+                SliverToBoxAdapter(
+                  child: SectionHeader(
+                    title: 'Featured Treks',
+                    actionLabel: 'All →',
+                    onAction: () => onNavTap(1),
+                  ),
                 ),
-              ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                const SliverToBoxAdapter(child: SizedBox(height: 30)),
 
-              SliverToBoxAdapter(
-                child: switch (state) {
-                  HomeLoaded s => CommunityStoriesSection(
-                      stories: s.communityStories,
-                    ),
-                  HomeLoading() => const CommunityStoriesSkeleton(),
-                  HomeError e => _ErrorState(message: e.message),
-                  _ => const SizedBox.shrink(),
-                },
-              ),
+                SliverToBoxAdapter(
+                  child: switch (state) {
+                    HomeLoaded s => FeaturedTreksSection(
+                        treks: s.featuredTreks,
+                      ),
+                    HomeLoading() => const FeaturedTreksSkeleton(),
+                    _ => const SizedBox.shrink(),
+                  },
+                ),
 
-              //  Footer CTA Banner
-              const SliverToBoxAdapter(child: _FooterCtaBanner()),
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
 
-              // Bottom padding for safe area
-              const SliverToBoxAdapter(child: SizedBox(height: 32)),
-            ],
-          );
-        },
+                //  COMMUNITY STORIES
+                SliverToBoxAdapter(
+                  child: SectionHeader(
+                    title: 'Community Stories',
+                    actionLabel: 'View all',
+                    onAction: () =>
+                        Navigator.of(context).pushNamed(AppRoutes.community),
+                  ),
+                ),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+                SliverToBoxAdapter(
+                  child: switch (state) {
+                    HomeLoaded s => CommunityStoriesSection(
+                        stories: s.communityStories,
+                      ),
+                    HomeLoading() => const CommunityStoriesSkeleton(),
+                    HomeError e => _ErrorState(message: e.message),
+                    _ => const SizedBox.shrink(),
+                  },
+                ),
+
+                //  Footer CTA Banner
+                const SliverToBoxAdapter(child: _FooterCtaBanner()),
+
+                // Bottom padding for safe area
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

@@ -37,13 +37,16 @@ class _TrekDetailView extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: AppColors.glacierWhite,
-          body: switch (state) {
-            TrekDetailInitial() => _LoadingView(),
-            TrekDetailLoading() => _LoadingView(),
-            TrekDetailError e => _ErrorView(message: e.message),
-            TrekDetailLoaded s => _LoadedView(state: s),
-            _ => const SizedBox.shrink(),
-          },
+          body: SafeArea(
+            bottom: false,
+            child: switch (state) {
+              TrekDetailInitial() => _LoadingView(),
+              TrekDetailLoading() => _LoadingView(),
+              TrekDetailError e => _ErrorView(message: e.message),
+              TrekDetailLoaded s => _LoadedView(state: s),
+              _ => const SizedBox.shrink(),
+            },
+          ),
         );
       },
     );
@@ -95,7 +98,6 @@ class _LoadedView extends StatelessWidget {
 }
 
 //  TAB BODY SWITCHER
-
 class _TabBody extends StatelessWidget {
   final TrekDetailLoaded state;
   const _TabBody({required this.state});

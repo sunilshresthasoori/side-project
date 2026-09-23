@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trekkers_odyssey_v2/features/splash_screen/presentation/splash_screen.dart';
 import '../../features/chat/domain/model/chat.dart';
 import '../../features/chat/presentation/pages/chat_detail_page.dart';
 import '../../features/chat/presentation/pages/conversation_page.dart';
@@ -12,7 +13,8 @@ import '../../features/trek_detail/presentation/pages/trek_detail_page.dart';
 class AppRoutes {
   AppRoutes._();
 
-  static const String home = '/';
+  static const String home = '/home';
+  static const String splash = '/';
   static const String explore = '/explore';
   static const String trekDetail = '/trek-detail';
   static const String community = '/community';
@@ -105,6 +107,8 @@ class AppRoutes {
 class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case AppRoutes.splash:
+        return _fade(const SplashScreen());
       case AppRoutes.home:
         return _fade(const HomePage());
       case AppRoutes.conversations:
